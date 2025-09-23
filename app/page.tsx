@@ -153,7 +153,7 @@ export default function HomePage() {
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105"
+                    className="w-full border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
                   >
                     <Link href="/mentors">Find Mentors</Link>
                   </Button>
@@ -175,7 +175,7 @@ export default function HomePage() {
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105"
+                    className="w-full border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
                   >
                     <Link href="/resume">Enhance Resume</Link>
                   </Button>
@@ -263,6 +263,18 @@ export default function HomePage() {
                 </CardContent>
               </Card>
             </div>
+            <div className="text-center animate-on-scroll">
+              <Button
+                asChild
+                variant="outline"
+                className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
+              >
+                <Link href="/reviews">
+                  Read More Reviews
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </section>
 
@@ -295,7 +307,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="flex flex-col gap-4 sm:flex-row py-8 w-full shrink-0 items-center px-6 md:px-8 border-t border-primary-200 bg-white">
-        <p className="text-sm text-primary-600">© 2024 CareerCove. All rights reserved.</p>
+        <p className="text-sm text-primary-600">© 2025 CareerCove. All rights reserved.</p>
         <nav className="sm:ml-auto flex gap-6">
           <Link className="text-sm hover:text-primary-800 transition-colors duration-300" href="/terms">
             Terms of Service

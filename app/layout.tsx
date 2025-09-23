@@ -6,10 +6,16 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "CareerCove - Find Your Perfect Career Path",
+  title: "CareerCove - Discover Your Ideal Career Path",
   description:
-    "Discover your ideal career with AI-powered assessments, expert mentorship, and personalized guidance. Transform your professional journey with CareerCove.",
-  keywords: "career guidance, career assessment, job search, mentorship, resume builder, career development",
+    "Empowering students and adults in discovering their ideal career pathways and passions with personalized guidance, industry insights, and skill-building resources.",
+  keywords: "career guidance, career quiz, mentorship, resume builder, professional development",
+  authors: [{ name: "CareerCove Team" }],
+  openGraph: {
+    title: "CareerCove - Discover Your Ideal Career Path",
+    description: "Empowering students and adults in discovering their ideal career pathways and passions.",
+    type: "website",
+  },
     generator: 'v0.app'
 }
 

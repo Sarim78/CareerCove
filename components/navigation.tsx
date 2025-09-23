@@ -89,6 +89,19 @@ export function Navigation() {
         </Link>
         <Link
           className={`text-sm font-medium transition-all duration-300 relative group ${
+            isActive("/reviews") ? "text-primary-900" : "text-primary-700 hover:text-primary-900"
+          }`}
+          href="/reviews"
+        >
+          Reviews
+          <span
+            className={`absolute -bottom-1 left-0 h-0.5 bg-primary-500 transition-all duration-300 ${
+              isActive("/reviews") ? "w-full" : "w-0 group-hover:w-full"
+            }`}
+          ></span>
+        </Link>
+        <Link
+          className={`text-sm font-medium transition-all duration-300 relative group ${
             isActive("/about") ? "text-primary-900" : "text-primary-700 hover:text-primary-900"
           }`}
           href="/about"
@@ -104,7 +117,7 @@ export function Navigation() {
           asChild
           variant="outline"
           size="sm"
-          className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105"
+          className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
         >
           <Link href="/auth">Sign In</Link>
         </Button>
@@ -176,6 +189,17 @@ export function Navigation() {
             </Link>
             <Link
               className={`text-base font-medium transition-all duration-300 py-3 px-4 rounded-lg ${
+                isActive("/reviews")
+                  ? "text-primary-900 bg-primary-50"
+                  : "text-primary-700 hover:text-primary-900 hover:bg-primary-50"
+              }`}
+              href="/reviews"
+              onClick={closeMobileMenu}
+            >
+              Reviews
+            </Link>
+            <Link
+              className={`text-base font-medium transition-all duration-300 py-3 px-4 rounded-lg ${
                 isActive("/about")
                   ? "text-primary-900 bg-primary-50"
                   : "text-primary-700 hover:text-primary-900 hover:bg-primary-50"
@@ -189,7 +213,7 @@ export function Navigation() {
               <Button
                 asChild
                 variant="outline"
-                className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300"
+                className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 bg-transparent"
               >
                 <Link href="/auth" onClick={closeMobileMenu}>
                   Sign In
