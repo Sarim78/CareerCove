@@ -1,12 +1,36 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Target } from "lucide-react"
+import { Target, User } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
+import { useState, useEffect } from "react"
 
 export function Navigation() {
   const pathname = usePathname()
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const supabase = createClient()
+
+    // Get initial user
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user)
+      setLoading(false)
+    })
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   const isActive = (path: string) => {
     if (path === "/" && pathname === "/") return true
@@ -88,21 +112,40 @@ export function Navigation() {
             }`}
           ></span>
         </Link>
-        <Button
-          asChild
-          variant="outline"
-          size="sm"
-          className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105"
-        >
-          <Link href="/auth">Sign In</Link>
-        </Button>
-        <Button
-          asChild
-          size="sm"
-          className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-        >
-          <Link href="/quiz">Start Quiz</Link>
-        </Button>
+        {!loading && (
+          <>
+            {user ? (
+              <Button
+                asChild
+                size="sm"
+                className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <Link href="/profile">
+                  <User className="w-4 h-4 mr-2" />
+                  Profile
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
+                >
+                  <Link href="/auth">Sign In</Link>
+                </Button>
+                <Button
+                  asChild
+                  size="sm"
+                  className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                >
+                  <Link href="/quiz">Start Quiz</Link>
+                </Button>
+              </>
+            )}
+          </>
+        )}
       </nav>
     </header>
   )
