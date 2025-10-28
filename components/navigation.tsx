@@ -2,13 +2,20 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Target, Menu, X } from "lucide-react"
+import { Target, Menu, X, User as UserIcon, LogOut } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function Navigation() {
   const pathname = usePathname()
+  const { isAuthenticated, user, logout } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  const handleLogout = async () => {
+    await logout()
+    closeMobileMenu()
+  }
 
   const isActive = (path: string) => {
     if (path === "/" && pathname === "/") return true
@@ -113,21 +120,46 @@ export function Navigation() {
             }`}
           ></span>
         </Link>
-        <Button
-          asChild
-          variant="outline"
-          size="sm"
-          className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
-        >
-          <Link href="/auth">Sign In</Link>
-        </Button>
-        <Button
-          asChild
-          size="sm"
-          className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-        >
-          <Link href="/quiz">Start Quiz</Link>
-        </Button>
+        {isAuthenticated ? (
+          <>
+            <Link
+              href="/dashboard"
+              className={`text-sm font-medium transition-all duration-300 relative group ${
+                isActive("/dashboard") ? "text-primary-900" : "text-primary-700 hover:text-primary-900"
+              }`}
+            >
+              <UserIcon className="h-4 w-4 inline mr-2" />
+              {user?.fullName || user?.username}
+            </Link>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              size="sm"
+              className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
+            >
+              <LogOut className="h-4 w-4 mr-1" />
+              Logout
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
+            >
+              <Link href="/auth">Sign In</Link>
+            </Button>
+            <Button
+              asChild
+              size="sm"
+              className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+            >
+              <Link href="/quiz">Start Quiz</Link>
+            </Button>
+          </>
+        )}
       </nav>
 
       {/* Mobile Menu Button */}
@@ -210,23 +242,46 @@ export function Navigation() {
               About
             </Link>
             <div className="flex flex-col space-y-3 pt-4 border-t border-primary-200">
-              <Button
-                asChild
-                variant="outline"
-                className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 bg-transparent"
-              >
-                <Link href="/auth" onClick={closeMobileMenu}>
-                  Sign In
-                </Link>
-              </Button>
-              <Button
-                asChild
-                className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                <Link href="/quiz" onClick={closeMobileMenu}>
-                  Start Quiz
-                </Link>
-              </Button>
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={closeMobileMenu}
+                    className="text-base font-medium transition-all duration-300 py-3 px-4 rounded-lg text-primary-700 hover:text-primary-900 hover:bg-primary-50"
+                  >
+                    <UserIcon className="h-4 w-4 inline mr-2" />
+                    Dashboard
+                  </Link>
+                  <Button
+                    onClick={handleLogout}
+                    variant="outline"
+                    className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 bg-transparent"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 bg-transparent"
+                  >
+                    <Link href="/auth" onClick={closeMobileMenu}>
+                      Sign In
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    <Link href="/quiz" onClick={closeMobileMenu}>
+                      Start Quiz
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
         </div>

@@ -4,9 +4,9 @@ A secure, production-ready backend system for CareerCove with user authenticatio
 
 ## 🚀 Tech Stack
 
-- **Node.js** - Runtime environment
+- **Node.js** (v18+) - Runtime environment
 - **Express.js** - Web framework
-- **PostgreSQL** - Database (with connection pooling)
+- **PostgreSQL** (v13+) - Database (with connection pooling)
 - **JWT** - Authentication (access + refresh tokens)
 - **Argon2** - Password hashing (more secure than bcrypt)
 - **Helmet** - Security middleware
@@ -46,8 +46,8 @@ backend/
 ## 🔧 Prerequisites
 
 - Node.js (v18 or higher)
-- PostgreSQL (v14 or higher)
-- npm or yarn
+- PostgreSQL (v13 or higher - uses built-in gen_random_uuid())
+- npm, pnpm, or yarn
 
 ## 📦 Installation
 

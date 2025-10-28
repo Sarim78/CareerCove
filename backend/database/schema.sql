@@ -1,15 +1,12 @@
 -- CareerCove Database Schema
--- PostgreSQL 14+
-
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- PostgreSQL 13+ (uses built-in gen_random_uuid())
 
 -- ============================================
 -- USERS TABLE
 -- Core user authentication and profile data
 -- ============================================
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
@@ -31,7 +28,7 @@ CREATE INDEX idx_users_status ON users(status);
 -- Manages JWT refresh tokens for secure authentication
 -- ============================================
 CREATE TABLE refresh_tokens (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     token TEXT NOT NULL UNIQUE,
     expires_at TIMESTAMP NOT NULL,
@@ -80,7 +77,7 @@ $$ LANGUAGE plpgsql;
 -- User Profiles (Extended user information)
 /*
 CREATE TABLE user_profiles (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     bio TEXT,
     avatar_url VARCHAR(500),
@@ -100,7 +97,7 @@ CREATE INDEX idx_user_profiles_user_id ON user_profiles(user_id);
 -- Career Quiz Results
 /*
 CREATE TABLE quiz_results (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     quiz_data JSONB NOT NULL,
     recommended_careers JSONB,
@@ -114,7 +111,7 @@ CREATE INDEX idx_quiz_results_user_id ON quiz_results(user_id);
 -- Mentors
 /*
 CREATE TABLE mentors (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     expertise JSONB,
     hourly_rate DECIMAL(10, 2),
@@ -134,7 +131,7 @@ CREATE INDEX idx_mentors_status ON mentors(status);
 -- Mentor Sessions
 /*
 CREATE TABLE mentor_sessions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     mentor_id UUID NOT NULL REFERENCES mentors(id) ON DELETE CASCADE,
     mentee_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     scheduled_at TIMESTAMP NOT NULL,
@@ -151,7 +148,7 @@ CREATE INDEX idx_mentor_sessions_mentee_id ON mentor_sessions(mentee_id);
 -- Reviews
 /*
 CREATE TABLE reviews (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     reviewer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     reviewee_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     session_id UUID REFERENCES mentor_sessions(id) ON DELETE SET NULL,
@@ -167,7 +164,7 @@ CREATE INDEX idx_reviews_reviewer_id ON reviews(reviewer_id);
 -- Resumes
 /*
 CREATE TABLE resumes (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(200) NOT NULL,
     content JSONB NOT NULL,
