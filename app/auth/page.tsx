@@ -1,14 +1,13 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { api } from "@/lib/api"
+import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
 export default function AuthPage() {
@@ -36,14 +35,19 @@ export default function AuthPage() {
     setIsLoading(true)
 
     try {
-      const response = await api.login(loginData.email, loginData.password)
+      const supabase = createClient()
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: loginData.email,
+        password: loginData.password,
+      })
 
-      if (response.success) {
-        setSuccess("Login successful! Redirecting...")
-        setTimeout(() => {
-          router.push("/")
-        }, 1500)
-      }
+      if (signInError) throw signInError
+
+      setSuccess("Login successful! Redirecting...")
+      setTimeout(() => {
+        router.push("/")
+        router.refresh()
+      }, 1500)
     } catch (err: any) {
       setError(err.message || "Login failed. Please try again.")
     } finally {
@@ -69,14 +73,21 @@ export default function AuthPage() {
     setIsLoading(true)
 
     try {
-      const response = await api.register(registerData.email, registerData.password, registerData.fullName)
+      const supabase = createClient()
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: registerData.email,
+        password: registerData.password,
+        options: {
+          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/profile`,
+          data: {
+            full_name: registerData.fullName,
+          },
+        },
+      })
 
-      if (response.success) {
-        setSuccess("Registration successful! Redirecting...")
-        setTimeout(() => {
-          router.push("/")
-        }, 1500)
-      }
+      if (signUpError) throw signUpError
+
+      setSuccess("Registration successful! Please check your email to confirm your account.")
     } catch (err: any) {
       setError(err.message || "Registration failed. Please try again.")
     } finally {
