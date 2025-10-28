@@ -39,32 +39,32 @@ export default function HomePage() {
         <section className="w-full py-20 md:py-32 lg:py-40 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary-50/50 to-white"></div>
           <div className="container px-6 md:px-8 relative">
-            <div className="grid gap-8 lg:grid-cols-2 lg:gap-16 items-center">
-              <div className="flex flex-col justify-center space-y-6 lg:space-y-8 animate-slide-in-left">
-                <div className="space-y-4 lg:space-y-6">
-                  <div className="inline-flex items-center px-3 py-1.5 lg:px-4 lg:py-2 rounded-full bg-primary-100 text-primary-700 text-xs lg:text-sm font-medium">
-                    <Sparkles className="w-3 h-3 lg:w-4 lg:h-4 mr-2" />
+            <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
+              <div className="flex flex-col justify-center space-y-8 animate-slide-in-left">
+                <div className="space-y-6">
+                  <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium">
+                    <Sparkles className="w-4 h-4 mr-2" />
                     Discover Your Perfect Career
                   </div>
-                  <h1 className="text-3xl sm:text-4xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-tight">
+                  <h1 className="text-4xl font-bold tracking-tight sm:text-6xl xl:text-7xl leading-tight">
                     Find Your
                     <span className="gradient-text block">Dream Career</span>
                     Path
                   </h1>
-                  <p className="max-w-[600px] text-primary-600 text-base lg:text-lg xl:text-xl leading-relaxed">
+                  <p className="max-w-[600px] text-primary-600 text-lg md:text-xl leading-relaxed">
                     Unlock your potential with personalized career guidance, expert mentorship, and AI-powered tools
                     designed to accelerate your professional journey.
                   </p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <Button
                     asChild
                     size="lg"
-                    className="bg-primary-500 hover:bg-primary-600 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group text-sm lg:text-base"
+                    className="bg-primary-500 hover:bg-primary-600 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group"
                   >
                     <Link href="/auth">
                       Get Started Free
-                      <ArrowRight className="ml-2 h-4 w-4 lg:h-5 lg:w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                      <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
                     </Link>
                   </Button>
                   <Button
@@ -76,21 +76,21 @@ export default function HomePage() {
                         featuresSection.scrollIntoView({ behavior: "smooth" })
                       }
                     }}
-                    className="border-primary-300 text-primary-700 hover:bg-primary-50 hover:border-primary-400 transition-all duration-300 hover:scale-105 text-sm lg:text-base"
+                    className="border-primary-300 text-primary-700 hover:bg-primary-50 hover:border-primary-400 transition-all duration-300 hover:scale-105"
                   >
                     Explore Features
                   </Button>
                 </div>
               </div>
-              <div className="flex items-center justify-center animate-slide-in-right order-first lg:order-last">
-                <div className="relative w-full max-w-sm lg:max-w-none">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary-200 to-primary-300 rounded-2xl lg:rounded-3xl blur-2xl lg:blur-3xl opacity-30 animate-pulse"></div>
+              <div className="flex items-center justify-center animate-slide-in-right">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary-200 to-primary-300 rounded-3xl blur-3xl opacity-30 animate-pulse"></div>
                   <Image
                     alt="Professional workspace with career planning materials, notebook, and sticky notes showing organized approach to career development"
-                    className="relative aspect-square overflow-hidden rounded-2xl lg:rounded-3xl object-cover shadow-xl lg:shadow-2xl hover:scale-105 transition-transform duration-500 w-full"
-                    height="400"
+                    className="relative aspect-square overflow-hidden rounded-3xl object-cover shadow-2xl hover:scale-105 transition-transform duration-500"
+                    height="500"
                     src="/images/career-planning.png"
-                    width="400"
+                    width="500"
                   />
                 </div>
               </div>
@@ -116,7 +116,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="mx-auto grid max-w-6xl gap-6 lg:gap-8 py-12 lg:py-16 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mx-auto grid max-w-6xl gap-8 py-16 lg:grid-cols-3">
               <Card className="h-full hover-lift bg-white border-primary-200/50 shadow-lg hover:shadow-2xl transition-all duration-300 animate-on-scroll group">
                 <CardHeader className="text-center pb-4">
                   <div className="mx-auto p-4 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -153,7 +153,7 @@ export default function HomePage() {
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
+                    className="w-full border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105"
                   >
                     <Link href="/mentors">Find Mentors</Link>
                   </Button>
@@ -175,7 +175,7 @@ export default function HomePage() {
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
+                    className="w-full border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105"
                   >
                     <Link href="/resume">Enhance Resume</Link>
                   </Button>
@@ -188,7 +188,7 @@ export default function HomePage() {
         {/* Stats Section */}
         <section className="w-full py-20 bg-gradient-to-br from-primary-50 to-primary-100">
           <div className="container px-6 md:px-8">
-            <div className="grid gap-6 lg:gap-8 grid-cols-1 sm:grid-cols-3">
+            <div className="grid gap-8 lg:grid-cols-3">
               <div className="flex flex-col items-center space-y-4 text-center animate-on-scroll group">
                 <div className="p-6 rounded-2xl bg-white shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                   <div className="text-4xl font-bold gradient-text mb-2">50K+</div>
@@ -221,7 +221,7 @@ export default function HomePage() {
               </div>
               <h2 className="text-3xl font-bold tracking-tight sm:text-5xl">What Our Users Say</h2>
             </div>
-            <div className="mx-auto grid max-w-6xl gap-6 lg:gap-8 py-12 lg:py-16 grid-cols-1 lg:grid-cols-2">
+            <div className="mx-auto grid max-w-6xl gap-8 py-16 lg:grid-cols-2">
               <Card className="hover-lift bg-white border-primary-200/50 shadow-lg hover:shadow-2xl transition-all duration-300 animate-on-scroll">
                 <CardContent className="pt-8">
                   <div className="flex items-center space-x-1 mb-6">
@@ -263,18 +263,6 @@ export default function HomePage() {
                 </CardContent>
               </Card>
             </div>
-            <div className="text-center animate-on-scroll">
-              <Button
-                asChild
-                variant="outline"
-                className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
-              >
-                <Link href="/reviews">
-                  Read More Reviews
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
           </div>
         </section>
 
@@ -307,7 +295,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="flex flex-col gap-4 sm:flex-row py-8 w-full shrink-0 items-center px-6 md:px-8 border-t border-primary-200 bg-white">
-        <p className="text-sm text-primary-600">© 2025 CareerCove. All rights reserved.</p>
+        <p className="text-sm text-primary-600">© 2024 CareerCove. All rights reserved.</p>
         <nav className="sm:ml-auto flex gap-6">
           <Link className="text-sm hover:text-primary-800 transition-colors duration-300" href="/terms">
             Terms of Service

@@ -19,6 +19,7 @@ import {
   ArrowRight,
 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { Navigation } from "@/components/navigation"
 
 const teamMembers = [
@@ -27,6 +28,7 @@ const teamMembers = [
     role: "Founder & CEO",
     bio: "Third-Year Computer Science student building CareerCove to help students find careers they love—because I've been through the confusion myself.",
     expertise: ["Full-Stack Development", "Data Science", "Cybersecurity", "Machine Learning"],
+    image: "/placeholder.svg?height=200&width=200",
     linkedin: "#",
   },
   {
@@ -39,6 +41,7 @@ const teamMembers = [
       "Cash Flow Management",
       "Financial Reporting & Compliance",
     ],
+    image: "/placeholder.svg?height=200&width=200",
     linkedin: "#",
   },
   {
@@ -51,13 +54,23 @@ const teamMembers = [
       "Cash Flow Management",
       "Investment Planning",
     ],
+    image: "/placeholder.svg?height=200&width=200",
     linkedin: "#",
   },
   {
     name: "Anas Jamal",
-    role: "CIO & Machine Learning",
-    bio: "CIO with a passion for leveraging machine learning to drive strategic innovation. Experienced in aligning AI solutions with business goals, leading cross-functional tech teams, and transforming data into impactful decisions.",
+    role: "Data Analytics & Machine Learning",
+    bio: "PhD in Machine Learning from Stanford. Previously led AI initiatives at Microsoft and Tesla.",
     expertise: ["Machine Learning", "AI Architecture", "Data Science"],
+    image: "/placeholder.svg?height=200&width=200",
+    linkedin: "#",
+  },
+  {
+    name: "Emily Johnson",
+    role: "Head of Psychology",
+    bio: "Licensed career counselor and organizational psychologist with expertise in career assessment.",
+    expertise: ["Career Psychology", "Assessment Design", "User Research"],
+    image: "/placeholder.svg?height=200&width=200",
     linkedin: "#",
   },
 ]
@@ -138,11 +151,11 @@ export default function AboutPage() {
                 <Heart className="w-4 h-4 mr-2" />
                 About CareerCove
               </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-tight mb-6 lg:mb-8">
+              <h1 className="text-4xl font-bold tracking-tight sm:text-6xl xl:text-7xl leading-tight mb-8">
                 Empowering Careers Through
                 <span className="gradient-text block">AI Innovation</span>
               </h1>
-              <p className="text-lg lg:text-xl text-primary-600 leading-relaxed max-w-3xl mx-auto mb-8 lg:mb-12 px-4">
+              <p className="text-xl text-primary-600 leading-relaxed max-w-3xl mx-auto mb-12">
                 We're on a mission to revolutionize career discovery by combining cutting-edge artificial intelligence
                 with deep psychological insights to help every individual find their perfect career path.
               </p>
@@ -208,13 +221,13 @@ export default function AboutPage() {
               <div className="animate-on-scroll">
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary-200 to-primary-300 rounded-3xl blur-3xl opacity-30"></div>
-                  <div className="relative aspect-square overflow-hidden rounded-3xl bg-gradient-to-br from-primary-100 to-primary-200 shadow-2xl hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                    <div className="text-center p-8">
-                      <Brain className="h-24 w-24 text-primary-600 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-primary-800 mb-2">AI-Powered Career Discovery</h3>
-                      <p className="text-primary-600">Advanced algorithms analyzing career paths</p>
-                    </div>
-                  </div>
+                  <Image
+                    alt="Organized career planning workspace with notebook, sticky notes, and planning materials representing systematic career development approach"
+                    className="relative aspect-square overflow-hidden rounded-3xl object-cover shadow-2xl hover:scale-105 transition-transform duration-500"
+                    height="500"
+                    src="/images/career-planning.png"
+                    width="500"
+                  />
                 </div>
               </div>
             </div>
@@ -238,7 +251,7 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="grid gap-6 lg:gap-8 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 mb-12 lg:mb-16">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mb-16">
               {howItWorks.map((step, index) => (
                 <Card
                   key={index}
@@ -328,7 +341,7 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="grid gap-6 lg:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               {teamMembers.map((member, index) => (
                 <Card
                   key={index}
@@ -336,9 +349,13 @@ export default function AboutPage() {
                 >
                   <CardHeader className="text-center pb-4">
                     <div className="relative mx-auto mb-4">
-                      <div className="w-[120px] h-[120px] rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 shadow-lg group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
-                        <Users className="h-12 w-12 text-primary-600" />
-                      </div>
+                      <Image
+                        src={member.image || "/placeholder.svg"}
+                        alt={member.name}
+                        width={120}
+                        height={120}
+                        className="rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300"
+                      />
                       <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-400 rounded-full border-2 border-white"></div>
                     </div>
                     <CardTitle className="text-lg text-primary-800">{member.name}</CardTitle>
@@ -376,7 +393,7 @@ export default function AboutPage() {
                 Real results from our AI-powered career guidance platform
               </p>
             </div>
-            <div className="grid gap-6 lg:gap-8 grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
               <div className="text-center animate-on-scroll group">
                 <div className="p-8 rounded-2xl bg-white shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                   <div className="text-4xl font-bold gradient-text mb-2">50K+</div>
@@ -411,6 +428,7 @@ export default function AboutPage() {
 
         {/* CTA Section */}
         <section className="w-full py-20 md:py-32 bg-gradient-to-br from-primary-500 to-primary-600 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('/images/career-planning.png')] opacity-10"></div>
           <div className="container px-6 md:px-8 relative">
             <div className="flex flex-col items-center justify-center space-y-8 text-center animate-on-scroll">
               <h2 className="text-3xl font-bold tracking-tight sm:text-5xl text-white max-w-3xl">

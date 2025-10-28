@@ -292,12 +292,6 @@ const QuizPage = () => {
   }
 
   const nextQuestion = () => {
-    const currentAnswer = answers[quizQuestions[currentQuestion].id]
-    if (!currentAnswer) {
-      alert("Please select an answer before continuing.")
-      return
-    }
-
     if (currentQuestion < quizQuestions.length - 1) {
       setIsAnimating(true)
       setTimeout(() => {
@@ -369,7 +363,7 @@ const QuizPage = () => {
       ]
     }
 
-    // Default fallback with better error handling
+    // Default fallback
     return careerRecommendations.default
   }
 
@@ -380,7 +374,7 @@ const QuizPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-white via-primary-50 to-primary-100">
         <Navigation />
 
-        <div className="container mx-auto px-4 lg:px-6 py-12 lg:py-16">
+        <div className="container mx-auto px-6 py-16">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12 animate-fade-in">
               <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 text-green-700 text-sm font-medium mb-4">
@@ -573,26 +567,26 @@ const QuizPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-white via-primary-50 to-primary-100">
       <Navigation />
 
-      <div className="container mx-auto px-4 lg:px-6 py-12 lg:py-16">
+      <div className="container mx-auto px-6 py-16">
         <div className="max-w-3xl mx-auto">
-          <div className="mb-8 lg:mb-12 animate-fade-in">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 lg:mb-6 gap-4">
-              <h1 className="text-2xl lg:text-3xl font-bold gradient-text">Career Discovery Quiz</h1>
-              <span className="text-xs lg:text-sm text-primary-600 bg-primary-100 px-3 py-1 rounded-full w-fit">
+          <div className="mb-12 animate-fade-in">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-3xl font-bold gradient-text">Career Discovery Quiz</h1>
+              <span className="text-sm text-primary-600 bg-primary-100 px-3 py-1 rounded-full">
                 {currentQuestion + 1} of {quizQuestions.length}
               </span>
             </div>
-            <Progress value={progress} className="w-full h-2 lg:h-3 bg-primary-100" />
+            <Progress value={progress} className="w-full h-3 bg-primary-100" />
           </div>
 
           <Card
             className={`hover-lift bg-white border-primary-200/50 shadow-xl transition-all duration-300 ${isAnimating ? "opacity-50 scale-95" : "opacity-100 scale-100"}`}
           >
-            <CardHeader className="pb-4 lg:pb-6">
-              <CardTitle className="text-xl lg:text-2xl text-primary-800 leading-relaxed">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl text-primary-800 leading-relaxed">
                 {quizQuestions[currentQuestion].question}
               </CardTitle>
-              <CardDescription className="text-sm lg:text-base text-primary-600">
+              <CardDescription className="text-primary-600">
                 Select the option that best describes your preferences
               </CardDescription>
             </CardHeader>
@@ -600,17 +594,17 @@ const QuizPage = () => {
               <RadioGroup
                 value={answers[quizQuestions[currentQuestion].id] || ""}
                 onValueChange={handleAnswer}
-                className="space-y-3 lg:space-y-4"
+                className="space-y-4"
               >
                 {quizQuestions[currentQuestion].options.map((option, index) => (
                   <div
                     key={option.value}
-                    className="flex items-start space-x-3 p-3 lg:p-4 rounded-xl border border-primary-200 hover:border-primary-300 hover:bg-primary-50 transition-all duration-300 cursor-pointer group"
+                    className="flex items-start space-x-3 p-4 rounded-xl border border-primary-200 hover:border-primary-300 hover:bg-primary-50 transition-all duration-300 cursor-pointer group"
                   >
                     <RadioGroupItem value={option.value} id={option.value} className="mt-1" />
                     <Label
                       htmlFor={option.value}
-                      className="flex-1 cursor-pointer text-sm lg:text-base text-primary-700 group-hover:text-primary-800 transition-colors duration-300 leading-relaxed"
+                      className="flex-1 cursor-pointer text-primary-700 group-hover:text-primary-800 transition-colors duration-300"
                     >
                       {option.label}
                     </Label>
@@ -618,12 +612,12 @@ const QuizPage = () => {
                 ))}
               </RadioGroup>
 
-              <div className="flex flex-col sm:flex-row justify-between mt-8 lg:mt-10 gap-4">
+              <div className="flex justify-between mt-10">
                 <Button
                   variant="outline"
                   onClick={prevQuestion}
                   disabled={currentQuestion === 0}
-                  className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 order-2 sm:order-1"
+                  className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Previous
@@ -631,7 +625,7 @@ const QuizPage = () => {
                 <Button
                   onClick={nextQuestion}
                   disabled={!answers[quizQuestions[currentQuestion].id]}
-                  className="bg-primary-500 hover:bg-primary-600 transition-all duration-300 hover:scale-105 group order-1 sm:order-2"
+                  className="bg-primary-500 hover:bg-primary-600 transition-all duration-300 hover:scale-105 group"
                 >
                   {currentQuestion === quizQuestions.length - 1 ? "Get Results" : "Next"}
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />

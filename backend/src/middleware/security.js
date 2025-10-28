@@ -1,61 +1,54 @@
-/**
- * Security Middleware
- * Additional security measures for XSS and injection protection
- */
+const helmet = require("helmet")
+const cors = require("cors")
 
-/**
- * Basic XSS protection middleware
- * Sanitizes user input
- */
-const xssProtection = (req, res, next) => {
-  // Sanitize request body
-  if (req.body) {
-    Object.keys(req.body).forEach((key) => {
-      if (typeof req.body[key] === "string") {
-        // Remove script tags and other dangerous HTML
-        req.body[key] = req.body[key]
-          .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
-          .replace(/javascript:/gi, "")
-          .replace(/on\w+\s*=/gi, "")
+const securityMiddleware = (app) => {
+  // Helmet for security headers
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'"],
+          imgSrc: ["'self'", "data:", "https:"],
+        },
+      },
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+      },
+    }),
+  )
+
+  // CORS configuration
+  const corsOptions = {
+    origin: (origin, callback) => {
+      const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",") : ["http://localhost:3000"]
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        callback(new Error("Not allowed by CORS"))
       }
-    })
+    },
+    credentials: true,
+    optionsSuccessStatus: 200,
   }
 
-  // Sanitize query parameters
-  if (req.query) {
-    Object.keys(req.query).forEach((key) => {
-      if (typeof req.query[key] === "string") {
-        req.query[key] = req.query[key]
-          .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
-          .replace(/javascript:/gi, "")
-          .replace(/on\w+\s*=/gi, "")
-      }
-    })
-  }
+  app.use(cors(corsOptions))
 
-  next()
+  // Prevent parameter pollution
+  app.use((req, res, next) => {
+    if (req.query) {
+      Object.keys(req.query).forEach((key) => {
+        if (Array.isArray(req.query[key])) {
+          req.query[key] = req.query[key][0]
+        }
+      })
+    }
+    next()
+  })
 }
 
-/**
- * Security headers middleware
- */
-const securityMiddleware = (req, res, next) => {
-  // Prevent clickjacking
-  res.setHeader("X-Frame-Options", "DENY")
-
-  // Prevent MIME type sniffing
-  res.setHeader("X-Content-Type-Options", "nosniff")
-
-  // Enable XSS filter
-  res.setHeader("X-XSS-Protection", "1; mode=block")
-
-  // Referrer policy
-  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin")
-
-  next()
-}
-
-module.exports = {
-  xssProtection,
-  securityMiddleware,
-}
+module.exports = { securityMiddleware }

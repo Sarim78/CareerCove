@@ -33,38 +33,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* Prevent horizontal scroll on mobile */
-    overflow-x: hidden;
-    /* Improve text rendering */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  /* Fix iOS zoom on input focus */
-  @media screen and (max-width: 768px) {
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    input[type="tel"],
-    input[type="url"],
-    input[type="date"],
-    input[type="time"],
-    textarea,
-    select {
-      font-size: 16px !important;
-      transform: translateZ(0);
-    }
-  }
-
-  /* Improve touch targets on mobile */
-  @media (max-width: 768px) {
-    button,
-    a,
-    input,
-    textarea,
-    select {
-      min-height: 44px;
-    }
   }
 }
 
@@ -83,12 +51,9 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Reduce hover effects on mobile */
-@media (hover: hover) and (pointer: fine) {
-  .hover-lift:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(139, 115, 85, 0.15);
-  }
+.hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(139, 115, 85, 0.15);
 }
 
 .gradient-text {
@@ -96,71 +61,4 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-}
-
-/* Mobile-specific improvements */
-@media (max-width: 640px) {
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
-  /* Improve readability on small screens */
-  h1,
-  h2,
-  h3 {
-    line-height: 1.2;
-  }
-
-  /* Better spacing for mobile cards */
-  .hover-lift {
-    margin-bottom: 0.5rem;
-  }
-
-  /* Ensure buttons are touch-friendly */
-  button {
-    padding: 0.75rem 1.5rem;
-    min-height: 44px;
-  }
-
-  /* Fix tab content spacing on mobile */
-  [data-radix-tabs-content] {
-    margin-top: 1rem;
-  }
-}
-
-/* Fix potential layout shifts */
-img {
-  max-width: 100%;
-  height: auto;
-}
-
-/* Improve form accessibility */
-input:focus,
-textarea:focus,
-select:focus {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
-}
-
-/* Fix potential z-index issues */
-.fixed,
-.sticky {
-  z-index: 50;
-}
-
-/* Improve modal and dialog positioning */
-[data-radix-dialog-overlay] {
-  z-index: 100;
-}
-
-[data-radix-dialog-content] {
-  z-index: 101;
-}
-
-/* Better mobile navigation */
-@media (max-width: 1024px) {
-  .mobile-nav {
-    z-index: 60;
-  }
 }

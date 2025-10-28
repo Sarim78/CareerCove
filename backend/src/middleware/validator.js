@@ -1,19 +1,12 @@
-/**
- * Input Validation Middleware
- * Validates and sanitizes user input
- */
-
 const { body, validationResult } = require("express-validator")
 
-/**
- * Handle validation errors
- */
-const handleValidationErrors = (req, res, next) => {
+// Validation middleware
+const validate = (req, res, next) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
     return res.status(400).json({
       success: false,
-      message: "Validation failed",
+      message: "Validation error",
       errors: errors.array().map((err) => ({
         field: err.path,
         message: err.msg,
@@ -23,19 +16,9 @@ const handleValidationErrors = (req, res, next) => {
   next()
 }
 
-/**
- * Signup validation rules
- */
-const validateSignup = [
-  body("username")
-    .trim()
-    .isLength({ min: 3, max: 50 })
-    .withMessage("Username must be between 3 and 50 characters")
-    .matches(/^[a-zA-Z0-9_]+$/)
-    .withMessage("Username can only contain letters, numbers, and underscores"),
-
-  body("email").trim().isEmail().withMessage("Please provide a valid email address").normalizeEmail(),
-
+// Registration validation rules
+const validateRegistration = [
+  body("email").isEmail().normalizeEmail().withMessage("Please provide a valid email address"),
   body("password")
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters long")
@@ -43,39 +26,22 @@ const validateSignup = [
     .withMessage(
       "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
     ),
-
-  body("fullName").optional().trim().isLength({ max: 100 }).withMessage("Full name must not exceed 100 characters"),
-
-  handleValidationErrors,
+  body("fullName").trim().isLength({ min: 2, max: 100 }).withMessage("Full name must be between 2 and 100 characters"),
+  validate,
 ]
 
-/**
- * Login validation rules
- */
+// Login validation rules
 const validateLogin = [
-  body("email").trim().isEmail().withMessage("Please provide a valid email address").normalizeEmail(),
-
+  body("email").isEmail().normalizeEmail().withMessage("Please provide a valid email address"),
   body("password").notEmpty().withMessage("Password is required"),
-
-  handleValidationErrors,
+  validate,
 ]
 
-/**
- * Refresh token validation rules
- */
-const validateRefreshToken = [
-  body("refreshToken")
-    .notEmpty()
-    .withMessage("Refresh token is required")
-    .isString()
-    .withMessage("Refresh token must be a string"),
-
-  handleValidationErrors,
-]
+// Refresh token validation rules
+const validateRefresh = [body("refreshToken").notEmpty().withMessage("Refresh token is required"), validate]
 
 module.exports = {
-  validateSignup,
+  validateRegistration,
   validateLogin,
-  validateRefreshToken,
-  handleValidationErrors,
+  validateRefresh,
 }

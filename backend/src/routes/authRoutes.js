@@ -1,23 +1,18 @@
-/**
- * Authentication Routes
- * Defines all authentication-related endpoints
- */
-
 const express = require("express")
 const AuthController = require("../controllers/authController")
 const { authenticateToken } = require("../middleware/auth")
-const { signupLimiter, loginLimiter } = require("../middleware/rateLimiter")
-const { validateSignup, validateLogin, validateRefreshToken } = require("../middleware/validator")
+const { authLimiter } = require("../middleware/rateLimiter")
+const { validateRegistration, validateLogin, validateRefresh } = require("../middleware/validator")
 
 const router = express.Router()
 
 // Public routes
-router.post("/signup", signupLimiter, validateSignup, AuthController.signup)
-router.post("/login", loginLimiter, validateLogin, AuthController.login)
-router.post("/refresh", validateRefreshToken, AuthController.refreshToken)
+router.post("/register", authLimiter, validateRegistration, AuthController.register)
+router.post("/login", authLimiter, validateLogin, AuthController.login)
+router.post("/refresh", validateRefresh, AuthController.refresh)
+router.post("/logout", AuthController.logout)
 
-// Protected routes (require authentication)
+// Protected routes
 router.get("/profile", authenticateToken, AuthController.getProfile)
-router.post("/logout", authenticateToken, AuthController.logout)
 
 module.exports = router

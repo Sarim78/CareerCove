@@ -1,35 +1,29 @@
-/**
- * Authentication Controller
- * Handles user signup, login, logout, and token refresh
- */
-
 const UserModel = require("../models/userModel")
-const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require("../utils/tokenUtils")
+const { generateTokens } = require("../utils/tokenUtils")
 
 class AuthController {
-  /**
-   * User Signup
-   * POST /api/auth/signup
-   */
-  static async signup(req, res, next) {
+  // Register new user
+  static async register(req, res, next) {
     try {
-      const { username, email, password, fullName } = req.body
+      const { email, password, fullName } = req.body
+
+      // Check if user already exists
+      const existingUser = await UserModel.findByEmail(email)
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: "Email already registered",
+        })
+      }
 
       // Create new user
-      const user = await UserModel.createUser({
-        username,
-        email,
-        password,
-        fullName,
-      })
+      const user = await UserModel.create({ email, password, fullName })
 
       // Generate tokens
-      const accessToken = generateAccessToken(user.id)
-      const refreshToken = generateRefreshToken(user.id)
+      const { accessToken, refreshToken, expiresAt } = generateTokens(user)
 
       // Store refresh token
-      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
-      await UserModel.storeRefreshToken(user.id, refreshToken, expiresAt, req.ip, req.get("user-agent"))
+      await UserModel.storeRefreshToken(user.id, refreshToken, expiresAt)
 
       res.status(201).json({
         success: true,
@@ -37,7 +31,6 @@ class AuthController {
         data: {
           user: {
             id: user.id,
-            username: user.username,
             email: user.email,
             fullName: user.full_name,
           },
@@ -50,15 +43,12 @@ class AuthController {
     }
   }
 
-  /**
-   * User Login
-   * POST /api/auth/login
-   */
+  // Login user
   static async login(req, res, next) {
     try {
       const { email, password } = req.body
 
-      // Find user by email
+      // Find user
       const user = await UserModel.findByEmail(email)
       if (!user) {
         return res.status(401).json({
@@ -68,32 +58,37 @@ class AuthController {
       }
 
       // Verify password
-      const isPasswordValid = await UserModel.verifyPassword(password, user.password_hash)
-      if (!isPasswordValid) {
+      const isValidPassword = await UserModel.verifyPassword(user, password)
+      if (!isValidPassword) {
         return res.status(401).json({
           success: false,
           message: "Invalid email or password",
         })
       }
 
+      // Check if account is active
+      if (!user.is_active) {
+        return res.status(403).json({
+          success: false,
+          message: "Account is deactivated",
+        })
+      }
+
       // Generate tokens
-      const accessToken = generateAccessToken(user.id)
-      const refreshToken = generateRefreshToken(user.id)
+      const { accessToken, refreshToken, expiresAt } = generateTokens(user)
 
       // Store refresh token
-      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-      await UserModel.storeRefreshToken(user.id, refreshToken, expiresAt, req.ip, req.get("user-agent"))
+      await UserModel.storeRefreshToken(user.id, refreshToken, expiresAt)
 
       // Update last login
       await UserModel.updateLastLogin(user.id)
 
-      res.status(200).json({
+      res.json({
         success: true,
         message: "Login successful",
         data: {
           user: {
             id: user.id,
-            username: user.username,
             email: user.email,
             fullName: user.full_name,
           },
@@ -106,45 +101,8 @@ class AuthController {
     }
   }
 
-  /**
-   * Get User Profile
-   * GET /api/auth/profile
-   */
-  static async getProfile(req, res, next) {
-    try {
-      const user = await UserModel.findById(req.userId)
-
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "User not found",
-        })
-      }
-
-      res.status(200).json({
-        success: true,
-        data: {
-          user: {
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            fullName: user.full_name,
-            status: user.status,
-            createdAt: user.created_at,
-            lastLogin: user.last_login,
-          },
-        },
-      })
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  /**
-   * Refresh Access Token
-   * POST /api/auth/refresh
-   */
-  static async refreshToken(req, res, next) {
+  // Refresh access token
+  static async refresh(req, res, next) {
     try {
       const { refreshToken } = req.body
 
@@ -155,39 +113,39 @@ class AuthController {
         })
       }
 
-      // Verify refresh token
-      const decoded = verifyRefreshToken(refreshToken)
-      if (!decoded) {
+      // Verify refresh token exists and is valid
+      const tokenRecord = await UserModel.findRefreshToken(refreshToken)
+      if (!tokenRecord) {
         return res.status(401).json({
           success: false,
           message: "Invalid or expired refresh token",
         })
       }
 
-      // Check if token exists in database
-      const tokenData = await UserModel.findRefreshToken(refreshToken)
-      if (!tokenData) {
+      // Get user
+      const user = await UserModel.findById(tokenRecord.user_id)
+      if (!user || !user.is_active) {
         return res.status(401).json({
           success: false,
-          message: "Refresh token not found or expired",
+          message: "User not found or inactive",
         })
       }
 
-      // Check user status
-      if (tokenData.user_status !== "active") {
-        return res.status(403).json({
-          success: false,
-          message: "User account is not active",
-        })
-      }
+      // Generate new tokens
+      const { accessToken, refreshToken: newRefreshToken, expiresAt } = generateTokens(user)
 
-      // Generate new access token
-      const accessToken = generateAccessToken(decoded.userId)
+      // Revoke old refresh token
+      await UserModel.revokeRefreshToken(refreshToken)
 
-      res.status(200).json({
+      // Store new refresh token
+      await UserModel.storeRefreshToken(user.id, newRefreshToken, expiresAt)
+
+      res.json({
         success: true,
+        message: "Token refreshed successfully",
         data: {
           accessToken,
+          refreshToken: newRefreshToken,
         },
       })
     } catch (error) {
@@ -195,25 +153,48 @@ class AuthController {
     }
   }
 
-  /**
-   * User Logout
-   * POST /api/auth/logout
-   */
+  // Logout user
   static async logout(req, res, next) {
     try {
       const { refreshToken } = req.body
 
       if (refreshToken) {
-        // Delete the specific refresh token
-        await UserModel.deleteRefreshToken(refreshToken)
+        await UserModel.revokeRefreshToken(refreshToken)
       }
 
-      // Optionally, delete all tokens for this user
-      // await UserModel.deleteAllUserTokens(req.userId);
-
-      res.status(200).json({
+      res.json({
         success: true,
         message: "Logout successful",
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  // Get user profile
+  static async getProfile(req, res, next) {
+    try {
+      const user = await UserModel.findById(req.user.id)
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        })
+      }
+
+      res.json({
+        success: true,
+        data: {
+          user: {
+            id: user.id,
+            email: user.email,
+            fullName: user.full_name,
+            createdAt: user.created_at,
+            lastLogin: user.last_login,
+            emailVerified: user.email_verified,
+          },
+        },
       })
     } catch (error) {
       next(error)

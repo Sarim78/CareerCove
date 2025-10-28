@@ -406,23 +406,23 @@ export default function MentorsPage() {
     <div className="min-h-screen bg-gradient-to-br from-white via-primary-50 to-primary-100">
       <Navigation />
 
-      <div className="container mx-auto px-4 lg:px-6 py-12 lg:py-16">
-        <div className="text-center mb-12 lg:mb-16 animate-fade-in">
-          <div className="inline-flex items-center px-3 py-1.5 lg:px-4 lg:py-2 rounded-full bg-primary-100 text-primary-700 text-xs lg:text-sm font-medium mb-4 lg:mb-6">
-            <Users className="w-3 h-3 lg:w-4 lg:h-4 mr-2" />
+      <div className="container mx-auto px-6 py-16">
+        <div className="text-center mb-16 animate-fade-in">
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-6">
+            <Users className="w-4 h-4 mr-2" />
             Expert Mentorship
           </div>
-          <h1 className="text-3xl lg:text-4xl font-bold gradient-text mb-4 lg:mb-6">Connect with Industry Leaders</h1>
-          <p className="text-lg lg:text-xl text-primary-600 max-w-3xl mx-auto leading-relaxed px-4">
+          <h1 className="text-4xl font-bold gradient-text mb-6">Connect with Industry Leaders</h1>
+          <p className="text-xl text-primary-600 max-w-3xl mx-auto leading-relaxed">
             Get personalized guidance from experienced professionals who have walked the path you want to take. Our
             mentors provide insider insights, career advice, and strategic guidance to accelerate your success.
           </p>
         </div>
 
         {/* Search and Filter Section */}
-        <div className="mb-6 lg:mb-8 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-            <div className="relative flex-1 max-w-full sm:max-w-md">
+        <div className="mb-8 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary-400" />
               <Input
                 placeholder="Search mentors, skills, or companies..."
@@ -434,7 +434,7 @@ export default function MentorsPage() {
             <Button
               onClick={() => setShowFilters(!showFilters)}
               variant="outline"
-              className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 w-full sm:w-auto"
+              className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300"
             >
               <Filter className="w-4 h-4 mr-2" />
               Filters
@@ -563,7 +563,7 @@ export default function MentorsPage() {
 
         {/* Mentors Grid */}
         {filteredMentors.length > 0 ? (
-          <div className="grid gap-6 lg:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 mb-12 lg:mb-16">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-16">
             {filteredMentors.map((mentor, index) => (
               <Card
                 key={mentor.id}

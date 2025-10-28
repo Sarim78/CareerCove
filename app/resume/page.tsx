@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,26 +15,11 @@ export default function ResumePage() {
   const [resumeText, setResumeText] = useState("")
   const [analysis, setAnalysis] = useState<any>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const observerRef = useRef<IntersectionObserver | null>(null)
+
+  // Add this state at the top of the component after existing useState declarations:
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isBuilding, setIsBuilding] = useState(false)
-  const [builderData, setBuilderData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    location: "",
-    summary: "",
-    jobTitle: "",
-    company: "",
-    startDate: "",
-    endDate: "",
-    jobDescription: "",
-    degree: "",
-    school: "",
-    graduationYear: "",
-    gpa: "",
-    skills: "",
-  })
-  const observerRef = useRef<IntersectionObserver | null>(null)
 
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
@@ -57,12 +40,8 @@ export default function ResumePage() {
   }, [])
 
   const analyzeResume = async () => {
-    if (!resumeText.trim()) {
-      alert("Please upload a file or paste your resume text first.")
-      return
-    }
-
     setIsAnalyzing(true)
+    // Simulate analysis with more realistic timing
     setTimeout(() => {
       setAnalysis({
         score: 82,
@@ -90,62 +69,18 @@ export default function ResumePage() {
     }, 2500)
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        alert("File size must be less than 10MB")
-        return
-      }
-      setSelectedFile(file)
-      setResumeText(
-        `Resume file uploaded: ${file.name}\n\nThis is a sample resume text for demonstration purposes. In a real application, the file content would be extracted and displayed here.\n\nJohn Doe\nSoftware Engineer\n\nExperience:\n- Senior Developer at Tech Corp (2020-2024)\n- Full Stack Developer at StartupXYZ (2018-2020)\n\nSkills:\n- JavaScript, React, Node.js\n- Python, Django\n- AWS, Docker\n- Agile Development`,
-      )
-      setAnalysis(null)
-    }
-  }
-
-  const handleBuilderDataChange = (field: string, value: string) => {
-    setBuilderData((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
-  }
-
-  const saveResumeBuilder = () => {
-    setIsBuilding(true)
-    setTimeout(() => {
-      alert("Resume saved! You can continue building or download your resume.")
-      setIsBuilding(false)
-    }, 1000)
-  }
-
-  const downloadEnhancedResume = () => {
-    const enhancedContent = `ENHANCED RESUME\n\n${resumeText}\n\nENHANCEMENTS APPLIED:\n- Optimized keywords for ATS\n- Improved formatting\n- Strengthened action verbs\n- Added quantified achievements`
-
-    const blob = new Blob([enhancedContent], { type: "text/plain" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "enhanced-resume.txt"
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-primary-50 to-primary-100">
       <Navigation />
 
-      <div className="container mx-auto px-4 lg:px-6 py-12 lg:py-16">
-        <div className="text-center mb-12 lg:mb-16 animate-fade-in">
-          <div className="inline-flex items-center px-3 py-1.5 lg:px-4 lg:py-2 rounded-full bg-primary-100 text-primary-700 text-xs lg:text-sm font-medium mb-4 lg:mb-6">
-            <FileText className="w-3 h-3 lg:w-4 lg:h-4 mr-2" />
+      <div className="container mx-auto px-6 py-16">
+        <div className="text-center mb-16 animate-fade-in">
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-6">
+            <FileText className="w-4 h-4 mr-2" />
             AI-Powered Resume Enhancement
           </div>
-          <h1 className="text-3xl lg:text-4xl font-bold gradient-text mb-4 lg:mb-6">Transform Your Resume</h1>
-          <p className="text-lg lg:text-xl text-primary-600 max-w-3xl mx-auto leading-relaxed px-4">
+          <h1 className="text-4xl font-bold gradient-text mb-6">Transform Your Resume</h1>
+          <p className="text-xl text-primary-600 max-w-3xl mx-auto leading-relaxed">
             Get intelligent feedback and optimization suggestions to make your resume stand out to employers and pass
             through ATS systems.
           </p>
@@ -153,7 +88,7 @@ export default function ResumePage() {
 
         <div className="max-w-7xl mx-auto">
           <Tabs defaultValue="upload" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-white border border-primary-200 shadow-sm mb-6">
+            <TabsList className="grid w-full grid-cols-3 bg-white border border-primary-200 shadow-sm">
               <TabsTrigger
                 value="upload"
                 className="data-[state=active]:bg-primary-500 data-[state=active]:text-white transition-all duration-300"
@@ -174,8 +109,8 @@ export default function ResumePage() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="upload" className="space-y-6 lg:space-y-8">
-              <div className="grid gap-6 lg:gap-8 grid-cols-1 xl:grid-cols-2">
+            <TabsContent value="upload" className="space-y-8 mt-8">
+              <div className="grid gap-8 lg:grid-cols-2">
                 <Card className="hover-lift bg-white border-primary-200/50 shadow-lg animate-on-scroll">
                   <CardHeader>
                     <CardTitle className="flex items-center text-primary-800">
@@ -187,7 +122,7 @@ export default function ResumePage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <div className="border-2 border-dashed border-primary-300 rounded-2xl p-8 lg:p-12 text-center hover:border-primary-400 hover:bg-primary-50/50 transition-all duration-300 group cursor-pointer">
+                    <div className="border-2 border-dashed border-primary-300 rounded-2xl p-12 text-center hover:border-primary-400 hover:bg-primary-50/50 transition-all duration-300 group cursor-pointer">
                       <div className="mx-auto p-4 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
                         <Upload className="h-8 w-8 text-primary-600" />
                       </div>
@@ -198,7 +133,15 @@ export default function ResumePage() {
                       <input
                         type="file"
                         accept=".pdf,.doc,.docx"
-                        onChange={handleFileUpload}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            setSelectedFile(file)
+                            setResumeText(
+                              `Resume file uploaded: ${file.name}\n\nThis is a sample resume text for demonstration purposes. In a real application, the file content would be extracted and displayed here.`,
+                            )
+                          }
+                        }}
                         className="hidden"
                         id="resume-upload"
                       />
@@ -223,10 +166,7 @@ export default function ResumePage() {
                     <Textarea
                       placeholder="Paste your resume text here for instant analysis..."
                       value={resumeText}
-                      onChange={(e) => {
-                        setResumeText(e.target.value)
-                        setAnalysis(null)
-                      }}
+                      onChange={(e) => setResumeText(e.target.value)}
                       className="min-h-[250px] border-primary-200 focus:border-primary-400 transition-colors duration-300"
                     />
 
@@ -335,7 +275,20 @@ export default function ResumePage() {
                       </div>
 
                       <Button
-                        onClick={downloadEnhancedResume}
+                        onClick={() => {
+                          // Create a sample enhanced resume content
+                          const enhancedContent = `ENHANCED RESUME\n\n${resumeText}\n\nENHANCEMENTS APPLIED:\n- Optimized keywords for ATS\n- Improved formatting\n- Strengthened action verbs\n- Added quantified achievements`
+
+                          const blob = new Blob([enhancedContent], { type: "text/plain" })
+                          const url = URL.createObjectURL(blob)
+                          const a = document.createElement("a")
+                          a.href = url
+                          a.download = "enhanced-resume.txt"
+                          document.body.appendChild(a)
+                          a.click()
+                          document.body.removeChild(a)
+                          URL.revokeObjectURL(url)
+                        }}
                         className="w-full bg-primary-500 hover:bg-primary-600 transition-all duration-300 hover:scale-105 group"
                       >
                         <Download className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
@@ -347,7 +300,7 @@ export default function ResumePage() {
               </div>
             </TabsContent>
 
-            <TabsContent value="builder" className="space-y-8">
+            <TabsContent value="builder" className="space-y-8 mt-8">
               <Card className="hover-lift bg-white border-primary-200/50 shadow-lg animate-on-scroll">
                 <CardHeader>
                   <CardTitle className="flex items-center text-primary-800">
@@ -367,8 +320,6 @@ export default function ResumePage() {
                       <Input
                         id="fullName"
                         placeholder="John Doe"
-                        value={builderData.fullName}
-                        onChange={(e) => handleBuilderDataChange("fullName", e.target.value)}
                         className="border-primary-200 focus:border-primary-400 transition-colors duration-300"
                       />
                     </div>
@@ -380,8 +331,6 @@ export default function ResumePage() {
                         id="email"
                         type="email"
                         placeholder="john@example.com"
-                        value={builderData.email}
-                        onChange={(e) => handleBuilderDataChange("email", e.target.value)}
                         className="border-primary-200 focus:border-primary-400 transition-colors duration-300"
                       />
                     </div>
@@ -392,8 +341,6 @@ export default function ResumePage() {
                       <Input
                         id="phone"
                         placeholder="+1 (555) 123-4567"
-                        value={builderData.phone}
-                        onChange={(e) => handleBuilderDataChange("phone", e.target.value)}
                         className="border-primary-200 focus:border-primary-400 transition-colors duration-300"
                       />
                     </div>
@@ -404,8 +351,6 @@ export default function ResumePage() {
                       <Input
                         id="location"
                         placeholder="San Francisco, CA"
-                        value={builderData.location}
-                        onChange={(e) => handleBuilderDataChange("location", e.target.value)}
                         className="border-primary-200 focus:border-primary-400 transition-colors duration-300"
                       />
                     </div>
@@ -418,100 +363,74 @@ export default function ResumePage() {
                     <Textarea
                       id="summary"
                       placeholder="Write a compelling summary of your professional background and key achievements..."
-                      value={builderData.summary}
-                      onChange={(e) => handleBuilderDataChange("summary", e.target.value)}
                       className="min-h-[120px] border-primary-200 focus:border-primary-400 transition-colors duration-300"
                     />
                   </div>
 
-                  <div className="p-6 rounded-xl bg-primary-50 border border-primary-200">
-                    <h3 className="font-semibold text-primary-800 mb-4">Work Experience</h3>
-                    <div className="space-y-4">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <Input
-                          placeholder="Job Title"
-                          value={builderData.jobTitle}
-                          onChange={(e) => handleBuilderDataChange("jobTitle", e.target.value)}
-                          className="border-primary-200 focus:border-primary-400"
-                        />
-                        <Input
-                          placeholder="Company Name"
-                          value={builderData.company}
-                          onChange={(e) => handleBuilderDataChange("company", e.target.value)}
-                          className="border-primary-200 focus:border-primary-400"
-                        />
-                      </div>
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <Input
-                          placeholder="Start Date"
-                          type="date"
-                          value={builderData.startDate}
-                          onChange={(e) => handleBuilderDataChange("startDate", e.target.value)}
-                          className="border-primary-200 focus:border-primary-400"
-                        />
-                        <Input
-                          placeholder="End Date"
-                          type="date"
-                          value={builderData.endDate}
-                          onChange={(e) => handleBuilderDataChange("endDate", e.target.value)}
+                  <div className="space-y-6">
+                    <div className="p-6 rounded-xl bg-primary-50 border border-primary-200">
+                      <h3 className="font-semibold text-primary-800 mb-4">Work Experience</h3>
+                      <div className="space-y-4">
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <Input placeholder="Job Title" className="border-primary-200 focus:border-primary-400" />
+                          <Input placeholder="Company Name" className="border-primary-200 focus:border-primary-400" />
+                        </div>
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <Input
+                            placeholder="Start Date"
+                            type="date"
+                            className="border-primary-200 focus:border-primary-400"
+                          />
+                          <Input
+                            placeholder="End Date"
+                            type="date"
+                            className="border-primary-200 focus:border-primary-400"
+                          />
+                        </div>
+                        <Textarea
+                          placeholder="Describe your key responsibilities and achievements..."
                           className="border-primary-200 focus:border-primary-400"
                         />
                       </div>
+                    </div>
+
+                    <div className="p-6 rounded-xl bg-blue-50 border border-blue-200">
+                      <h3 className="font-semibold text-blue-800 mb-4">Education</h3>
+                      <div className="space-y-4">
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <Input placeholder="Degree" className="border-primary-200 focus:border-primary-400" />
+                          <Input
+                            placeholder="School/University"
+                            className="border-primary-200 focus:border-primary-400"
+                          />
+                        </div>
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <Input
+                            placeholder="Graduation Year"
+                            className="border-primary-200 focus:border-primary-400"
+                          />
+                          <Input placeholder="GPA (Optional)" className="border-primary-200 focus:border-primary-400" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-6 rounded-xl bg-green-50 border border-green-200">
+                      <h3 className="font-semibold text-green-800 mb-4">Skills</h3>
                       <Textarea
-                        placeholder="Describe your key responsibilities and achievements..."
-                        value={builderData.jobDescription}
-                        onChange={(e) => handleBuilderDataChange("jobDescription", e.target.value)}
+                        placeholder="List your key skills separated by commas (e.g., JavaScript, React, Node.js, Project Management)"
                         className="border-primary-200 focus:border-primary-400"
                       />
                     </div>
                   </div>
 
-                  <div className="p-6 rounded-xl bg-blue-50 border border-blue-200">
-                    <h3 className="font-semibold text-blue-800 mb-4">Education</h3>
-                    <div className="space-y-4">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <Input
-                          placeholder="Degree"
-                          value={builderData.degree}
-                          onChange={(e) => handleBuilderDataChange("degree", e.target.value)}
-                          className="border-primary-200 focus:border-primary-400"
-                        />
-                        <Input
-                          placeholder="School/University"
-                          value={builderData.school}
-                          onChange={(e) => handleBuilderDataChange("school", e.target.value)}
-                          className="border-primary-200 focus:border-primary-400"
-                        />
-                      </div>
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <Input
-                          placeholder="Graduation Year"
-                          value={builderData.graduationYear}
-                          onChange={(e) => handleBuilderDataChange("graduationYear", e.target.value)}
-                          className="border-primary-200 focus:border-primary-400"
-                        />
-                        <Input
-                          placeholder="GPA (Optional)"
-                          value={builderData.gpa}
-                          onChange={(e) => handleBuilderDataChange("gpa", e.target.value)}
-                          className="border-primary-200 focus:border-primary-400"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-6 rounded-xl bg-green-50 border border-green-200">
-                    <h3 className="font-semibold text-green-800 mb-4">Skills</h3>
-                    <Textarea
-                      placeholder="List your key skills separated by commas (e.g., JavaScript, React, Node.js, Project Management)"
-                      value={builderData.skills}
-                      onChange={(e) => handleBuilderDataChange("skills", e.target.value)}
-                      className="border-primary-200 focus:border-primary-400"
-                    />
-                  </div>
-
                   <Button
-                    onClick={saveResumeBuilder}
+                    onClick={() => {
+                      setIsBuilding(true)
+                      setTimeout(() => {
+                        alert("Resume saved! You can continue building or download your resume.")
+                        setIsBuilding(false)
+                      }, 1000)
+                    }}
                     disabled={isBuilding}
                     className="w-full bg-primary-500 hover:bg-primary-600 transition-all duration-300 hover:scale-105"
                   >
@@ -521,13 +440,13 @@ export default function ResumePage() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="templates" className="space-y-8">
+            <TabsContent value="templates" className="space-y-8 mt-8">
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-primary-800 mb-4">Choose Your Resume Template</h2>
                 <p className="text-primary-600">Select a professional template that matches your industry and style</p>
               </div>
 
-              <div className="grid gap-6 lg:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {[
                   {
                     name: "Modern Professional",
@@ -585,7 +504,7 @@ export default function ResumePage() {
                       <Button
                         onClick={() => {
                           alert(
-                            `${template.name} template selected! The resume builder has been loaded with this template.`,
+                            `${template.name} template selected! This will open the resume builder with this template pre-loaded.`,
                           )
                         }}
                         className="w-full bg-primary-500 hover:bg-primary-600 transition-all duration-300 hover:scale-105"
