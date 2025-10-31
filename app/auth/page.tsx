@@ -10,24 +10,67 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Navigation } from "@/components/navigation"
-import {
-  sanitizeInput,
-  isValidEmail,
-  validatePasswordStrength,
-  isValidFullName,
-  rateLimiter,
-  escapeHtml,
-} from "@/lib/utils/validation"
-import { Eye, EyeOff, Lock, Mail, User, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { CheckCircle2, XCircle, AlertCircle } from "lucide-react"
+
+function calculatePasswordStrength(password: string): {
+  strength: "weak" | "medium" | "strong"
+  score: number
+  feedback: string[]
+} {
+  let score = 0
+  const feedback: string[] = []
+
+  if (password.length >= 8) {
+    score += 1
+  } else {
+    feedback.push("At least 8 characters")
+  }
+
+  if (password.length >= 12) {
+    score += 1
+  }
+
+  if (/[a-z]/.test(password)) {
+    score += 1
+  } else {
+    feedback.push("Add lowercase letters")
+  }
+
+  if (/[A-Z]/.test(password)) {
+    score += 1
+  } else {
+    feedback.push("Add uppercase letters")
+  }
+
+  if (/[0-9]/.test(password)) {
+    score += 1
+  } else {
+    feedback.push("Add numbers")
+  }
+
+  if (/[^a-zA-Z0-9]/.test(password)) {
+    score += 1
+  } else {
+    feedback.push("Add special characters (!@#$%)")
+  }
+
+  let strength: "weak" | "medium" | "strong" = "weak"
+  if (score >= 5) strength = "strong"
+  else if (score >= 3) strength = "medium"
+
+  return { strength, score, feedback }
+}
+
+function sanitizeInput(input: string): string {
+  return input.trim().replace(/[<>]/g, "")
+}
 
 export default function AuthPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [passwordStrength, setPasswordStrength] = useState<{ isValid: boolean; errors: string[]; strength: 'weak' | 'medium' | 'strong' } | null>(null)
 
   const [loginData, setLoginData] = useState({
     email: "",
@@ -41,40 +84,17 @@ export default function AuthPage() {
     confirmPassword: "",
   })
 
-  // Check if user is already logged in and handle email confirmation
-  useEffect(() => {
-    const checkUser = async () => {
-      const supabase = createClient()
-      
-      // Handle email confirmation callback
-      const { data: { session }, error } = await supabase.auth.getSession()
-      
-      if (session?.user) {
-        // Check if this is an email confirmation callback
-        if (typeof window !== 'undefined') {
-          const urlParams = new URLSearchParams(window.location.search)
-          if (urlParams.get('confirmed') === 'true') {
-            setSuccess("Email confirmed successfully! Redirecting to your profile...")
-            setTimeout(() => {
-              router.push("/profile")
-              router.refresh()
-            }, 2000)
-            return
-          }
-        }
-        // User is already logged in
-        router.push("/profile")
-      }
-    }
-    checkUser()
-  }, [router])
+  const [passwordStrength, setPasswordStrength] = useState<{
+    strength: "weak" | "medium" | "strong"
+    score: number
+    feedback: string[]
+  }>({ strength: "weak", score: 0, feedback: [] })
 
-  // Validate password strength in real-time
   useEffect(() => {
     if (registerData.password) {
-      setPasswordStrength(validatePasswordStrength(registerData.password))
+      setPasswordStrength(calculatePasswordStrength(registerData.password))
     } else {
-      setPasswordStrength(null)
+      setPasswordStrength({ strength: "weak", score: 0, feedback: [] })
     }
   }, [registerData.password])
 
@@ -82,57 +102,40 @@ export default function AuthPage() {
     e.preventDefault()
     setError("")
     setSuccess("")
-
-    // Rate limiting
-    const rateLimitKey = `login:${loginData.email}`
-    if (!rateLimiter.isAllowed(rateLimitKey, 5, 15 * 60 * 1000)) {
-      setError("Too many login attempts. Please try again in 15 minutes.")
-      return
-    }
-
-    // Input sanitization
-    const sanitizedEmail = sanitizeInput(loginData.email)
-    const sanitizedPassword = loginData.password // Don't sanitize passwords
-
-    // Validation
-    if (!sanitizedEmail || !sanitizedPassword) {
-      setError("Please fill in all fields")
-      return
-    }
-
-    if (!isValidEmail(sanitizedEmail)) {
-      setError("Please enter a valid email address")
-      return
-    }
-
     setIsLoading(true)
 
     try {
+      const email = sanitizeInput(loginData.email)
+      const password = loginData.password
+
+      if (!email || !password) {
+        throw new Error("Please fill in all fields")
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        throw new Error("Please enter a valid email address")
+      }
+
       const supabase = createClient()
-      
-      // Additional CSRF protection: Supabase handles this via cookies, but we verify session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: sanitizedEmail.toLowerCase(),
-        password: sanitizedPassword,
+        email,
+        password,
       })
 
       if (signInError) {
+        if (signInError.message.includes("Invalid login credentials")) {
+          throw new Error("Invalid email or password. Please try again.")
+        }
         throw signInError
       }
 
-      // Success - reset rate limiter only on successful login
-      rateLimiter.reset(rateLimitKey)
       setSuccess("Login successful! Redirecting...")
       setTimeout(() => {
         router.push("/profile")
         router.refresh()
       }, 1000)
     } catch (err: any) {
-      // Sanitize error message to prevent XSS
-      const errorMessage = err.message || "Login failed. Please try again."
-      setError(escapeHtml(errorMessage))
+      setError(err.message || "Login failed. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -143,137 +146,91 @@ export default function AuthPage() {
     setError("")
     setSuccess("")
 
-    // Rate limiting
-    const rateLimitKey = `register:${registerData.email}`
-    if (!rateLimiter.isAllowed(rateLimitKey, 3, 60 * 60 * 1000)) {
-      setError("Too many registration attempts. Please try again in an hour.")
-      return
-    }
-
-    // Input sanitization
-    const sanitizedFullName = sanitizeInput(registerData.fullName)
-    const sanitizedEmail = sanitizeInput(registerData.email)
-    const password = registerData.password // Don't sanitize passwords
-
-    // Validation
-    const nameValidation = isValidFullName(sanitizedFullName)
-    if (!nameValidation.isValid) {
-      setError(nameValidation.error || "Invalid name")
-      return
-    }
-
-    if (!sanitizedEmail || !isValidEmail(sanitizedEmail)) {
-      setError("Please enter a valid email address")
-      return
-    }
-
-    if (!password) {
-      setError("Password is required")
-      return
-    }
-
-    const passwordValidation = validatePasswordStrength(password)
-    if (!passwordValidation.isValid) {
-      setError(passwordValidation.errors[0])
-      return
-    }
-
-    if (password !== registerData.confirmPassword) {
-      setError("Passwords do not match")
-      return
-    }
-
-    setIsLoading(true)
-
     try {
+      const fullName = sanitizeInput(registerData.fullName)
+      const email = sanitizeInput(registerData.email)
+      const password = registerData.password
+      const confirmPassword = registerData.confirmPassword
+
+      if (!fullName || !email || !password || !confirmPassword) {
+        throw new Error("Please fill in all fields")
+      }
+
+      if (fullName.length < 2) {
+        throw new Error("Full name must be at least 2 characters")
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        throw new Error("Please enter a valid email address")
+      }
+
+      if (password !== confirmPassword) {
+        throw new Error("Passwords do not match")
+      }
+
+      if (password.length < 8) {
+        throw new Error("Password must be at least 8 characters long")
+      }
+
+      if (passwordStrength.strength === "weak") {
+        throw new Error("Please use a stronger password. " + passwordStrength.feedback.join(", "))
+      }
+
+      setIsLoading(true)
+
       const supabase = createClient()
-      
       const { error: signUpError } = await supabase.auth.signUp({
-        email: sanitizedEmail.toLowerCase(),
-        password: password,
+        email,
+        password,
         options: {
-          emailRedirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/auth?confirmed=true`,
+          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/profile`,
           data: {
-            full_name: sanitizedFullName,
+            full_name: fullName,
           },
         },
       })
 
       if (signUpError) {
+        if (signUpError.message.includes("already registered")) {
+          throw new Error("This email is already registered. Please sign in instead.")
+        }
         throw signUpError
       }
 
-      // Success - reset rate limiter only on successful registration
-      rateLimiter.reset(rateLimitKey)
-      setSuccess("Registration successful! Please check your email to confirm your account before signing in.")
-      
-      // Clear form after successful registration
+      setSuccess("Registration successful! Please check your email to confirm your account.")
       setRegisterData({
         fullName: "",
         email: "",
         password: "",
         confirmPassword: "",
       })
-      setPasswordStrength(null)
     } catch (err: any) {
-      // Sanitize error message to prevent XSS
-      const errorMessage = err.message || "Registration failed. Please try again."
-      setError(escapeHtml(errorMessage))
+      setError(err.message || "Registration failed. Please try again.")
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  const getPasswordStrengthColor = (strength: 'weak' | 'medium' | 'strong') => {
-    switch (strength) {
-      case 'weak':
-        return 'bg-red-500'
-      case 'medium':
-        return 'bg-yellow-500'
-      case 'strong':
-        return 'bg-green-500'
-      default:
-        return 'bg-gray-300'
     }
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-primary-50 to-primary-100">
       <Navigation />
-      <div className="flex items-center justify-center p-4 sm:p-6 pt-20 sm:pt-24 pb-20 sm:pb-24 min-h-[calc(100vh-5rem)]">
-        <Card className="w-full max-w-md shadow-2xl border-primary-200/50 bg-white/90 backdrop-blur-sm mx-auto">
-          <CardHeader className="space-y-3 pb-4 sm:pb-6 px-4 sm:px-6 pt-6 sm:pt-6">
-            <CardTitle className="text-2xl sm:text-3xl font-bold text-center gradient-text">
-              Welcome to CareerCove
-            </CardTitle>
-            <CardDescription className="text-center text-primary-600 text-sm sm:text-base">
-              Sign in to your account or create a new one
-            </CardDescription>
+      <div className="flex items-center justify-center p-4 pt-32">
+        <Card className="w-full max-w-md shadow-xl">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">Welcome to CareerCove</CardTitle>
+            <CardDescription className="text-center">Sign in to your account or create a new one</CardDescription>
           </CardHeader>
-          <CardContent className="px-4 sm:px-6 pb-6 sm:pb-6">
+          <CardContent>
             <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-primary-100/50 border border-primary-200/50 h-10 sm:h-11">
-                <TabsTrigger 
-                  value="login"
-                  className="data-[state=active]:bg-primary-500 data-[state=active]:text-white text-primary-700 font-medium text-sm sm:text-base px-2 sm:px-3"
-                >
-                  Sign In
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="register"
-                  className="data-[state=active]:bg-primary-500 data-[state=active]:text-white text-primary-700 font-medium text-sm sm:text-base px-2 sm:px-3"
-                >
-                  Sign Up
-                </TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Sign In</TabsTrigger>
+                <TabsTrigger value="register">Sign Up</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="login" className="space-y-4 mt-4 sm:mt-6">
-                <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
+              <TabsContent value="login">
+                <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email" className="text-primary-700 font-medium flex items-center gap-2 text-sm sm:text-base">
-                      <Mail className="w-4 h-4 flex-shrink-0" />
-                      Email
-                    </Label>
+                    <Label htmlFor="login-email">Email</Label>
                     <Input
                       id="login-email"
                       type="email"
@@ -281,67 +238,45 @@ export default function AuthPage() {
                       required
                       value={loginData.email}
                       onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                      className="border-primary-200 focus:border-primary-500 focus:ring-primary-500 h-10 sm:h-10 text-sm sm:text-base"
-                      autoComplete="email"
+                      disabled={isLoading}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="login-password" className="text-primary-700 font-medium flex items-center gap-2 text-sm sm:text-base">
-                      <Lock className="w-4 h-4 flex-shrink-0" />
-                      Password
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="login-password"
-                        type={showPassword ? "text" : "password"}
-                        required
-                        value={loginData.password}
-                        onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                        className="border-primary-200 focus:border-primary-500 focus:ring-primary-500 pr-10 h-10 sm:h-10 text-sm sm:text-base"
-                        autoComplete="current-password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-400 hover:text-primary-600 transition-colors touch-manipulation"
-                        aria-label="Toggle password visibility"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
-                      </button>
-                    </div>
+                    <Label htmlFor="login-password">Password</Label>
+                    <Input
+                      id="login-password"
+                      type="password"
+                      required
+                      value={loginData.password}
+                      onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                      disabled={isLoading}
+                    />
                   </div>
 
                   {error && (
-                    <div className="p-3 text-xs sm:text-sm text-red-700 bg-red-50 border border-red-200 rounded-md flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      <span className="break-words">{error}</span>
-                    </div>
+                    <Alert variant="destructive">
+                      <XCircle className="h-4 w-4" />
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
                   )}
 
                   {success && (
-                    <div className="p-3 text-xs sm:text-sm text-green-700 bg-green-50 border border-green-200 rounded-md flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      <span className="break-words">{success}</span>
-                    </div>
+                    <Alert className="border-green-200 bg-green-50 text-green-800">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <AlertDescription>{success}</AlertDescription>
+                    </Alert>
                   )}
 
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] h-10 sm:h-11 text-sm sm:text-base font-medium" 
-                    disabled={isLoading}
-                  >
+                  <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? "Signing in..." : "Sign In"}
                   </Button>
                 </form>
               </TabsContent>
 
-              <TabsContent value="register" className="space-y-4 mt-4 sm:mt-6">
-                <form onSubmit={handleRegister} className="space-y-4 sm:space-y-5">
+              <TabsContent value="register">
+                <form onSubmit={handleRegister} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="register-name" className="text-primary-700 font-medium flex items-center gap-2 text-sm sm:text-base">
-                      <User className="w-4 h-4 flex-shrink-0" />
-                      Full Name
-                    </Label>
+                    <Label htmlFor="register-name">Full Name</Label>
                     <Input
                       id="register-name"
                       type="text"
@@ -349,16 +284,11 @@ export default function AuthPage() {
                       required
                       value={registerData.fullName}
                       onChange={(e) => setRegisterData({ ...registerData, fullName: e.target.value })}
-                      className="border-primary-200 focus:border-primary-500 focus:ring-primary-500 h-10 sm:h-10 text-sm sm:text-base"
-                      autoComplete="name"
-                      maxLength={100}
+                      disabled={isLoading}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="register-email" className="text-primary-700 font-medium flex items-center gap-2 text-sm sm:text-base">
-                      <Mail className="w-4 h-4 flex-shrink-0" />
-                      Email
-                    </Label>
+                    <Label htmlFor="register-email">Email</Label>
                     <Input
                       id="register-email"
                       type="email"
@@ -366,119 +296,82 @@ export default function AuthPage() {
                       required
                       value={registerData.email}
                       onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
-                      className="border-primary-200 focus:border-primary-500 focus:ring-primary-500 h-10 sm:h-10 text-sm sm:text-base"
-                      autoComplete="email"
+                      disabled={isLoading}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="register-password" className="text-primary-700 font-medium flex items-center gap-2 text-sm sm:text-base">
-                      <Lock className="w-4 h-4 flex-shrink-0" />
-                      Password
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="register-password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Create a strong password"
-                        required
-                        value={registerData.password}
-                        onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
-                        className="border-primary-200 focus:border-primary-500 focus:ring-primary-500 pr-10 h-10 sm:h-10 text-sm sm:text-base"
-                        autoComplete="new-password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-400 hover:text-primary-600 transition-colors touch-manipulation"
-                        aria-label="Toggle password visibility"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
-                      </button>
-                    </div>
-                    {passwordStrength && registerData.password && (
+                    <Label htmlFor="register-password">Password</Label>
+                    <Input
+                      id="register-password"
+                      type="password"
+                      placeholder="Create a strong password"
+                      required
+                      value={registerData.password}
+                      onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                      disabled={isLoading}
+                    />
+                    {registerData.password && (
                       <div className="space-y-2 mt-2">
                         <div className="flex items-center gap-2">
-                          <div className="flex-1 h-2 sm:h-2.5 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                             <div
-                              className={`h-full transition-all duration-300 ${getPasswordStrengthColor(passwordStrength.strength)}`}
-                              style={{
-                                width: passwordStrength.strength === 'weak' ? '33%' : passwordStrength.strength === 'medium' ? '66%' : '100%',
-                              }}
+                              className={`h-full transition-all duration-300 ${
+                                passwordStrength.strength === "strong"
+                                  ? "bg-green-500 w-full"
+                                  : passwordStrength.strength === "medium"
+                                    ? "bg-yellow-500 w-2/3"
+                                    : "bg-red-500 w-1/3"
+                              }`}
                             />
                           </div>
-                          <span className={`text-xs sm:text-sm font-medium whitespace-nowrap ${
-                            passwordStrength.strength === 'weak' ? 'text-red-600' :
-                            passwordStrength.strength === 'medium' ? 'text-yellow-600' :
-                            'text-green-600'
-                          }`}>
+                          <span
+                            className={`text-xs font-medium ${
+                              passwordStrength.strength === "strong"
+                                ? "text-green-600"
+                                : passwordStrength.strength === "medium"
+                                  ? "text-yellow-600"
+                                  : "text-red-600"
+                            }`}
+                          >
                             {passwordStrength.strength.charAt(0).toUpperCase() + passwordStrength.strength.slice(1)}
                           </span>
                         </div>
-                        {!passwordStrength.isValid && (
-                          <ul className="text-xs text-red-600 space-y-1 ml-1 pr-2">
-                            {passwordStrength.errors.map((error, idx) => (
-                              <li key={idx} className="flex items-start gap-1.5">
-                                <span className="flex-shrink-0">•</span>
-                                <span className="break-words">{error}</span>
-                              </li>
-                            ))}
-                          </ul>
+                        {passwordStrength.feedback.length > 0 && (
+                          <div className="flex items-start gap-2 text-xs text-gray-600">
+                            <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                            <span>{passwordStrength.feedback.join(", ")}</span>
+                          </div>
                         )}
                       </div>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="register-confirm" className="text-primary-700 font-medium flex items-center gap-2 text-sm sm:text-base">
-                      <Lock className="w-4 h-4 flex-shrink-0" />
-                      Confirm Password
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="register-confirm"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Re-enter your password"
-                        required
-                        value={registerData.confirmPassword}
-                        onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
-                        className="border-primary-200 focus:border-primary-500 focus:ring-primary-500 pr-10 h-10 sm:h-10 text-sm sm:text-base"
-                        autoComplete="new-password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-400 hover:text-primary-600 transition-colors touch-manipulation"
-                        aria-label="Toggle password visibility"
-                      >
-                        {showConfirmPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
-                      </button>
-                    </div>
-                    {registerData.confirmPassword && registerData.password !== registerData.confirmPassword && (
-                      <p className="text-xs sm:text-sm text-red-600 flex items-center gap-1.5">
-                        <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                        <span>Passwords do not match</span>
-                      </p>
-                    )}
+                    <Label htmlFor="register-confirm">Confirm Password</Label>
+                    <Input
+                      id="register-confirm"
+                      type="password"
+                      required
+                      value={registerData.confirmPassword}
+                      onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
+                      disabled={isLoading}
+                    />
                   </div>
 
                   {error && (
-                    <div className="p-3 text-xs sm:text-sm text-red-700 bg-red-50 border border-red-200 rounded-md flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      <span className="break-words">{error}</span>
-                    </div>
+                    <Alert variant="destructive">
+                      <XCircle className="h-4 w-4" />
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
                   )}
 
                   {success && (
-                    <div className="p-3 text-xs sm:text-sm text-green-700 bg-green-50 border border-green-200 rounded-md flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      <span className="break-words">{success}</span>
-                    </div>
+                    <Alert className="border-green-200 bg-green-50 text-green-800">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <AlertDescription>{success}</AlertDescription>
+                    </Alert>
                   )}
 
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] h-10 sm:h-11 text-sm sm:text-base font-medium" 
-                    disabled={isLoading || (passwordStrength !== null && !passwordStrength.isValid)}
-                  >
+                  <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? "Creating account..." : "Create Account"}
                   </Button>
                 </form>
