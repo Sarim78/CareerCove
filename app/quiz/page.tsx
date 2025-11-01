@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -9,6 +9,18 @@ import { Progress } from "@/components/ui/progress"
 import { ArrowLeft, ArrowRight, Sparkles, Award, TrendingUp, Filter, X } from "lucide-react"
 import Link from "next/link"
 import { Navigation } from "@/components/navigation"
+import { createClient } from "@/lib/supabase/client"
+import { useRouter } from "next/navigation"
+
+const filterCategories = [
+  { id: "technology", icon: <TrendingUp />, label: "Technology" },
+  { id: "science", icon: <Sparkles />, label: "Science" },
+  { id: "creative", icon: <Award />, label: "Creative" },
+  { id: "business", icon: <X />, label: "Business" },
+  { id: "healthcare", icon: <Sparkles />, label: "Healthcare" },
+  { id: "finance", icon: <TrendingUp />, label: "Finance" },
+  { id: "education", icon: <Award />, label: "Education" },
+]
 
 const quizQuestions = [
   {
@@ -272,26 +284,20 @@ const QuizPage = () => {
   const [isAnimating, setIsAnimating] = useState(false)
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
   const [showFilters, setShowFilters] = useState(false)
+  const [isSavingQuiz, setIsSavingQuiz] = useState(false)
+  const router = useRouter()
 
-  const filterCategories = [
-    { id: "technology", label: "Technology", icon: "💻" },
-    { id: "healthcare", label: "Healthcare", icon: "🏥" },
-    { id: "business", label: "Business", icon: "💼" },
-    { id: "creative", label: "Creative", icon: "🎨" },
-    { id: "science", label: "Science", icon: "🔬" },
-    { id: "education", label: "Education", icon: "📚" },
-    { id: "finance", label: "Finance", icon: "💰" },
-    { id: "consulting", label: "Consulting", icon: "📊" },
-  ]
+  const handleAnswer = useCallback(
+    (value: string) => {
+      setAnswers((prev) => ({
+        ...prev,
+        [quizQuestions[currentQuestion].id]: value,
+      }))
+    },
+    [currentQuestion],
+  )
 
-  const handleAnswer = (value: string) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [quizQuestions[currentQuestion].id]: value,
-    }))
-  }
-
-  const nextQuestion = () => {
+  const nextQuestion = useCallback(() => {
     if (currentQuestion < quizQuestions.length - 1) {
       setIsAnimating(true)
       setTimeout(() => {
@@ -300,16 +306,53 @@ const QuizPage = () => {
       }, 300)
     } else {
       setShowResults(true)
+      saveQuizResults()
     }
-  }
+  }, [currentQuestion, answers])
 
-  const prevQuestion = () => {
+  const prevQuestion = useCallback(() => {
     if (currentQuestion > 0) {
       setIsAnimating(true)
       setTimeout(() => {
         setCurrentQuestion((prev) => prev - 1)
         setIsAnimating(false)
       }, 300)
+    }
+  }, [currentQuestion])
+
+  const saveQuizResults = async () => {
+    try {
+      setIsSavingQuiz(true)
+      const supabase = createClient()
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        console.log("[v0] User not logged in, skipping quiz save")
+        return
+      }
+
+      const answerKey = Object.values(answers).join("-")
+      const personalityType = Object.values(answers)[0]?.split("-")[0] || "analyst"
+
+      const { error } = await supabase.from("quiz_results").insert({
+        user_id: user.id,
+        answers: answers,
+        personality_type: personalityType,
+        completed_at: new Date().toISOString(),
+      })
+
+      if (error) {
+        console.error("[v0] Error saving quiz:", error.message)
+      } else {
+        console.log("[v0] Quiz results saved successfully")
+      }
+    } catch (err) {
+      console.error("[v0] Error in saveQuizResults:", err)
+    } finally {
+      setIsSavingQuiz(false)
     }
   }
 
@@ -374,7 +417,7 @@ const QuizPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-white via-primary-50 to-primary-100">
         <Navigation />
 
-        <div className="container mx-auto px-6 py-16">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-12 md:py-16">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12 animate-fade-in">
               <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 text-green-700 text-sm font-medium mb-4">
@@ -516,7 +559,7 @@ const QuizPage = () => {
                     <Button
                       asChild
                       variant="outline"
-                      className="flex-1 border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105"
+                      className="flex-1 border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
                     >
                       <Link href="/resume">Enhance Resume</Link>
                     </Button>
@@ -567,44 +610,44 @@ const QuizPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-white via-primary-50 to-primary-100">
       <Navigation />
 
-      <div className="container mx-auto px-6 py-16">
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-12 md:py-16">
         <div className="max-w-3xl mx-auto">
-          <div className="mb-12 animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold gradient-text">Career Discovery Quiz</h1>
-              <span className="text-sm text-primary-600 bg-primary-100 px-3 py-1 rounded-full">
+          <div className="mb-6 sm:mb-8 md:mb-12 animate-fade-in">
+            <div className="flex flex-col xs:flex-row xs:justify-between xs:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <h1 className="text-xl sm:text-2xl md:text-4xl font-bold gradient-text">Career Discovery Quiz</h1>
+              <span className="text-xs sm:text-sm text-primary-600 bg-primary-100 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full w-fit">
                 {currentQuestion + 1} of {quizQuestions.length}
               </span>
             </div>
-            <Progress value={progress} className="w-full h-3 bg-primary-100" />
+            <Progress value={progress} className="w-full h-2 sm:h-3 bg-primary-100" />
           </div>
 
           <Card
             className={`hover-lift bg-white border-primary-200/50 shadow-xl transition-all duration-300 ${isAnimating ? "opacity-50 scale-95" : "opacity-100 scale-100"}`}
           >
-            <CardHeader className="pb-6">
-              <CardTitle className="text-2xl text-primary-800 leading-relaxed">
+            <CardHeader className="pb-4 sm:pb-6 px-3 sm:px-4 md:px-6">
+              <CardTitle className="text-lg sm:text-xl md:text-2xl text-primary-800 leading-relaxed">
                 {quizQuestions[currentQuestion].question}
               </CardTitle>
-              <CardDescription className="text-primary-600">
+              <CardDescription className="text-xs sm:text-sm text-primary-600 mt-2">
                 Select the option that best describes your preferences
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-4 md:px-6">
               <RadioGroup
                 value={answers[quizQuestions[currentQuestion].id] || ""}
                 onValueChange={handleAnswer}
-                className="space-y-4"
+                className="space-y-2 sm:space-y-3 md:space-y-4"
               >
-                {quizQuestions[currentQuestion].options.map((option, index) => (
+                {quizQuestions[currentQuestion].options.map((option) => (
                   <div
                     key={option.value}
-                    className="flex items-start space-x-3 p-4 rounded-xl border border-primary-200 hover:border-primary-300 hover:bg-primary-50 transition-all duration-300 cursor-pointer group"
+                    className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl border border-primary-200 hover:border-primary-300 hover:bg-primary-50 transition-all duration-300 cursor-pointer group"
                   >
-                    <RadioGroupItem value={option.value} id={option.value} className="mt-1" />
+                    <RadioGroupItem value={option.value} id={option.value} className="mt-0.5 sm:mt-1 flex-shrink-0" />
                     <Label
                       htmlFor={option.value}
-                      className="flex-1 cursor-pointer text-primary-700 group-hover:text-primary-800 transition-colors duration-300"
+                      className="flex-1 cursor-pointer text-xs sm:text-sm md:text-base text-primary-700 group-hover:text-primary-800 transition-colors duration-300"
                     >
                       {option.label}
                     </Label>
@@ -612,23 +655,23 @@ const QuizPage = () => {
                 ))}
               </RadioGroup>
 
-              <div className="flex justify-between mt-10">
+              <div className="flex flex-col xs:flex-row gap-2 sm:gap-3 mt-6 sm:mt-8 md:mt-10">
                 <Button
                   variant="outline"
                   onClick={prevQuestion}
                   disabled={currentQuestion === 0}
-                  className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105"
+                  className="flex-1 border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 text-xs sm:text-sm bg-transparent"
                 >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  <ArrowLeft className="mr-1 sm:mr-2 h-3 sm:h-4 w-3 sm:w-4" />
                   Previous
                 </Button>
                 <Button
                   onClick={nextQuestion}
-                  disabled={!answers[quizQuestions[currentQuestion].id]}
-                  className="bg-primary-500 hover:bg-primary-600 transition-all duration-300 hover:scale-105 group"
+                  disabled={!answers[quizQuestions[currentQuestion].id] || isAnimating}
+                  className="flex-1 bg-primary-500 hover:bg-primary-600 transition-all duration-300 hover:scale-105 group text-xs sm:text-sm"
                 >
                   {currentQuestion === quizQuestions.length - 1 ? "Get Results" : "Next"}
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  <ArrowRight className="ml-1 sm:ml-2 h-3 sm:h-4 w-3 sm:w-4 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
               </div>
             </CardContent>
