@@ -32,7 +32,7 @@ Complete backend system for CareerCove career guidance platform.
 See `.env.example` for required configuration.
 \`\`\`
 
-```text file="backend/.env.example"
+\`\`\`text file="backend/.env.example"
 # Server Configuration
 PORT=5000
 NODE_ENV=development

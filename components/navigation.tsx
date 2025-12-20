@@ -44,7 +44,10 @@ export function Navigation() {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/quiz", label: "Quiz" },
-    { href: "/mentors", label: "Mentors" },
+    { href: "/jobs", label: "Jobs" },
+    { href: "/skills", label: "Skills" },
+    { href: "/career-path", label: "Career Path" },
+    { href: "/messages", label: "Messages" },
     { href: "/resume", label: "Resume" },
     { href: "/about", label: "About" },
   ]
@@ -61,11 +64,11 @@ export function Navigation() {
       </Link>
 
       {/* Desktop Navigation */}
-      <nav className="ml-auto hidden lg:flex items-center gap-6 md:gap-8">
+      <nav className="ml-auto hidden lg:flex items-center gap-4 xl:gap-6">
         {navLinks.map((link) => (
           <Link
             key={link.href}
-            className={`text-xs sm:text-sm font-medium transition-all duration-300 relative group ${
+            className={`text-xs xl:text-sm font-medium transition-all duration-300 relative group whitespace-nowrap ${
               isActive(link.href) ? "text-primary-900" : "text-primary-700 hover:text-primary-900"
             }`}
             href={link.href}
@@ -140,7 +143,7 @@ export function Navigation() {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="absolute top-14 sm:top-16 md:top-20 left-0 right-0 bg-white border-b border-primary-200/50 shadow-lg lg:hidden">
+        <div className="absolute top-14 sm:top-16 md:top-20 left-0 right-0 bg-white border-b border-primary-200/50 shadow-lg lg:hidden max-h-[calc(100vh-3.5rem)] overflow-y-auto">
           <nav className="flex flex-col p-3 sm:p-4 gap-2">
             {navLinks.map((link) => (
               <Link
