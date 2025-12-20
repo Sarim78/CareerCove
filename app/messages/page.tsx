@@ -51,7 +51,7 @@ export default function MessagesPage() {
       if (error) throw error
       setMessages(data || [])
     } catch (error) {
-      console.error("Error loading messages:", error)
+      // Error handled silently
     } finally {
       setLoading(false)
     }
@@ -71,7 +71,7 @@ export default function MessagesPage() {
         prev.map((msg) => (msg.id === messageId ? { ...msg, is_read: true, read_at: new Date().toISOString() } : msg)),
       )
     } catch (error) {
-      console.error("Error marking message as read:", error)
+      // Error handled silently
     }
   }
 
@@ -92,7 +92,7 @@ export default function MessagesPage() {
       setShowCompose(false)
       loadMessages(user.id)
     } catch (error) {
-      console.error("Error sending message:", error)
+      // Error handled silently
     }
   }
 

@@ -55,7 +55,7 @@ export default function CareerPathPage() {
       if (error) throw error
       setCareerPaths(data || [])
     } catch (error) {
-      console.error("Error loading career paths:", error)
+      // Error handled silently
     } finally {
       setLoading(false)
     }
@@ -102,7 +102,7 @@ export default function CareerPathPage() {
       setShowAdd(false)
       loadCareerPaths(user.id)
     } catch (error) {
-      console.error("Error saving career path:", error)
+      // Error handled silently
     }
   }
 
@@ -116,7 +116,7 @@ export default function CareerPathPage() {
 
       setCareerPaths((prev) => prev.filter((path) => path.id !== pathId))
     } catch (error) {
-      console.error("Error deleting career path:", error)
+      // Error handled silently
     }
   }
 

@@ -330,7 +330,6 @@ const QuizPage = () => {
       } = await supabase.auth.getUser()
 
       if (!user) {
-        console.log("[v0] User not logged in, skipping quiz save")
         return
       }
 
@@ -345,12 +344,10 @@ const QuizPage = () => {
       })
 
       if (error) {
-        console.error("[v0] Error saving quiz:", error.message)
-      } else {
-        console.log("[v0] Quiz results saved successfully")
+        // Error is handled silently
       }
     } catch (err) {
-      console.error("[v0] Error in saveQuizResults:", err)
+      // Error is handled silently
     } finally {
       setIsSavingQuiz(false)
     }

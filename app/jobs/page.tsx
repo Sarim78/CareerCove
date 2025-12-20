@@ -47,7 +47,7 @@ export default function JobsPage() {
       if (error) throw error
       setJobs(data || [])
     } catch (error) {
-      console.error("Error loading jobs:", error)
+      // Error handled silently in production
     } finally {
       setLoading(false)
     }
@@ -64,7 +64,7 @@ export default function JobsPage() {
       const savedJobIds = new Set(data?.map((item) => item.job_id) || [])
       setSavedJobs(savedJobIds)
     } catch (error) {
-      console.error("Error loading saved jobs:", error)
+      // Error handled silently
     }
   }
 
@@ -87,7 +87,7 @@ export default function JobsPage() {
         setSavedJobs((prev) => new Set(prev).add(jobId))
       }
     } catch (error) {
-      console.error("Error toggling saved job:", error)
+      // Error handled silently
     }
   }
 

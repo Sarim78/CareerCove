@@ -49,7 +49,6 @@ export default function SkillsPage() {
       if (error) throw error
       setSkills(data || [])
     } catch (error) {
-      console.error("Error loading skills:", error)
     } finally {
       setLoading(false)
     }
@@ -71,9 +70,7 @@ export default function SkillsPage() {
       setNewSkill({ name: "", current: 0, target: 100 })
       setShowAdd(false)
       loadSkills(user.id)
-    } catch (error) {
-      console.error("Error adding skill:", error)
-    }
+    } catch (error) {}
   }
 
   const updateSkill = async (skillId: string, proficiencyLevel: number) => {
@@ -90,9 +87,7 @@ export default function SkillsPage() {
       setSkills((prev) =>
         prev.map((skill) => (skill.id === skillId ? { ...skill, proficiency_level: proficiencyLevel } : skill)),
       )
-    } catch (error) {
-      console.error("Error updating skill:", error)
-    }
+    } catch (error) {}
   }
 
   const deleteSkill = async (skillId: string) => {
@@ -104,9 +99,7 @@ export default function SkillsPage() {
       if (error) throw error
 
       setSkills((prev) => prev.filter((skill) => skill.id !== skillId))
-    } catch (error) {
-      console.error("Error deleting skill:", error)
-    }
+    } catch (error) {}
   }
 
   const getSkillLevel = (proficiency: number) => {
