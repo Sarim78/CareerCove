@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { MessageSquare, Send, Inbox, Mail, Search, User } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
 
 export default function MessagesPage() {
   const [messages, setMessages] = useState<any[]>([])
@@ -19,7 +18,6 @@ export default function MessagesPage() {
   const [newMessage, setNewMessage] = useState({ subject: "", message: "" })
   const [showCompose, setShowCompose] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
@@ -31,13 +29,13 @@ export default function MessagesPage() {
       data: { session },
     } = await supabase.auth.getSession()
 
-    if (!session?.user) {
-      router.push("/auth")
-      return
-    }
+    setUser(session?.user ?? null)
 
-    setUser(session.user)
-    loadMessages(session.user.id)
+    if (session?.user) {
+      loadMessages(session.user.id)
+    } else {
+      setLoading(false)
+    }
   }
 
   const loadMessages = async (userId: string) => {
@@ -136,171 +134,194 @@ export default function MessagesPage() {
               Communicate with recruiters and career support
             </p>
           </div>
-          <Button
-            onClick={() => setShowCompose(!showCompose)}
-            className="bg-primary-500 hover:bg-primary-600 text-white w-full sm:w-auto"
-          >
-            <Send className="w-4 h-4 mr-2" />
-            Compose
-          </Button>
+          {user && (
+            <Button
+              onClick={() => setShowCompose(!showCompose)}
+              className="bg-primary-500 hover:bg-primary-600 text-white w-full sm:w-auto"
+            >
+              <Send className="w-4 h-4 mr-2" />
+              Compose
+            </Button>
+          )}
         </div>
 
-        {/* Compose Message */}
-        {showCompose && (
-          <Card className="mb-6 border-primary-200">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl">New Message</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-primary-900 mb-1.5 block">Subject</label>
-                <Input
-                  placeholder="Message subject"
-                  value={newMessage.subject}
-                  onChange={(e) => setNewMessage({ ...newMessage, subject: e.target.value })}
-                  className="text-sm sm:text-base"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-primary-900 mb-1.5 block">Message</label>
-                <Textarea
-                  placeholder="Type your message here..."
-                  value={newMessage.message}
-                  onChange={(e) => setNewMessage({ ...newMessage, message: e.target.value })}
-                  rows={5}
-                  className="text-sm sm:text-base resize-none"
-                />
-              </div>
-              <div className="flex gap-3">
-                <Button onClick={sendMessage} className="flex-1 bg-primary-500 hover:bg-primary-600 text-white">
-                  <Send className="w-4 h-4 mr-2" />
-                  Send Message
-                </Button>
-                <Button
-                  onClick={() => setShowCompose(false)}
-                  variant="outline"
-                  className="flex-1 border-primary-300 text-primary-700 hover:bg-primary-50"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </CardContent>
+        {!user ? (
+          <Card className="p-8 sm:p-12 text-center border-primary-100">
+            <MessageSquare className="w-16 h-16 mx-auto text-primary-300 mb-4" />
+            <h3 className="text-lg sm:text-xl font-semibold text-primary-900 mb-2">Sign in to access messages</h3>
+            <p className="text-sm sm:text-base text-primary-600 mb-4">
+              Create an account to communicate with recruiters and career advisors
+            </p>
+            <Button
+              onClick={() => (window.location.href = "/auth")}
+              className="bg-primary-500 hover:bg-primary-600 text-white"
+            >
+              Sign In / Sign Up
+            </Button>
           </Card>
-        )}
-
-        {/* Search */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400 w-5 h-5" />
-          <Input
-            placeholder="Search messages..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 h-11 text-sm sm:text-base"
-          />
-        </div>
-
-        {/* Messages Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-          {/* Messages List */}
-          <div className="space-y-3">
-            {filteredMessages.length === 0 ? (
-              <Card className="p-8 sm:p-12 text-center border-primary-100">
-                <Inbox className="w-16 h-16 mx-auto text-primary-300 mb-4" />
-                <h3 className="text-lg sm:text-xl font-semibold text-primary-900 mb-2">No messages yet</h3>
-                <p className="text-sm sm:text-base text-primary-600 mb-4">
-                  Start a conversation with recruiters or career advisors
-                </p>
-                <Button onClick={() => setShowCompose(true)} className="bg-primary-500 hover:bg-primary-600 text-white">
-                  <Send className="w-4 h-4 mr-2" />
-                  Send First Message
-                </Button>
-              </Card>
-            ) : (
-              filteredMessages.map((message) => (
-                <Card
-                  key={message.id}
-                  className={`cursor-pointer transition-all duration-300 hover:shadow-md ${
-                    selectedMessage?.id === message.id
-                      ? "border-primary-500 bg-primary-50/50"
-                      : message.is_read
-                        ? "border-primary-100"
-                        : "border-primary-300 bg-primary-50/30"
-                  }`}
-                  onClick={() => {
-                    setSelectedMessage(message)
-                    if (!message.is_read && message.receiver_id === user?.id) {
-                      markAsRead(message.id)
-                    }
-                  }}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          {!message.is_read && message.receiver_id === user?.id && (
-                            <Badge variant="secondary" className="bg-primary-500 text-white text-xs px-2 py-0.5">
-                              New
-                            </Badge>
-                          )}
-                          <CardTitle className="text-sm sm:text-base text-primary-900 truncate">
-                            {message.subject}
-                          </CardTitle>
-                        </div>
-                        <CardDescription className="text-xs sm:text-sm">
-                          {message.sender_id === user?.id ? "Sent" : "Received"} •{" "}
-                          {new Date(message.sent_at).toLocaleDateString()}
-                        </CardDescription>
-                      </div>
-                      <Mail
-                        className={`w-5 h-5 shrink-0 ${message.is_read ? "text-primary-300" : "text-primary-500"}`}
-                      />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-xs sm:text-sm text-primary-700 line-clamp-2">{message.message}</p>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
-
-          {/* Message Detail */}
-          <div className="lg:sticky lg:top-24 lg:h-fit">
-            {selectedMessage ? (
-              <Card className="border-primary-200">
-                <CardHeader className="border-b border-primary-100">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-full bg-primary-100">
-                      <User className="w-5 h-5 text-primary-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg sm:text-xl text-primary-900 mb-1 break-words">
-                        {selectedMessage.subject}
-                      </CardTitle>
-                      <CardDescription className="text-xs sm:text-sm">
-                        {selectedMessage.sender_id === user?.id ? "You sent this message" : "Message received"} •{" "}
-                        {new Date(selectedMessage.sent_at).toLocaleString()}
-                      </CardDescription>
-                    </div>
-                  </div>
+        ) : (
+          <>
+            {/* Compose Message */}
+            {showCompose && (
+              <Card className="mb-6 border-primary-200">
+                <CardHeader>
+                  <CardTitle className="text-lg sm:text-xl">New Message</CardTitle>
                 </CardHeader>
-                <CardContent className="pt-6">
-                  <p className="text-sm sm:text-base text-primary-700 whitespace-pre-wrap leading-relaxed">
-                    {selectedMessage.message}
-                  </p>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-primary-900 mb-1.5 block">Subject</label>
+                    <Input
+                      placeholder="Message subject"
+                      value={newMessage.subject}
+                      onChange={(e) => setNewMessage({ ...newMessage, subject: e.target.value })}
+                      className="text-sm sm:text-base"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-primary-900 mb-1.5 block">Message</label>
+                    <Textarea
+                      placeholder="Type your message here..."
+                      value={newMessage.message}
+                      onChange={(e) => setNewMessage({ ...newMessage, message: e.target.value })}
+                      rows={5}
+                      className="text-sm sm:text-base resize-none"
+                    />
+                  </div>
+                  <div className="flex gap-3">
+                    <Button onClick={sendMessage} className="flex-1 bg-primary-500 hover:bg-primary-600 text-white">
+                      <Send className="w-4 h-4 mr-2" />
+                      Send Message
+                    </Button>
+                    <Button
+                      onClick={() => setShowCompose(false)}
+                      variant="outline"
+                      className="flex-1 border-primary-300 text-primary-700 hover:bg-primary-50"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
-            ) : (
-              <Card className="p-8 sm:p-12 text-center border-primary-100 hidden lg:block">
-                <MessageSquare className="w-16 h-16 mx-auto text-primary-300 mb-4" />
-                <h3 className="text-lg sm:text-xl font-semibold text-primary-900 mb-2">Select a message</h3>
-                <p className="text-sm sm:text-base text-primary-600">
-                  Choose a message from the list to view its content
-                </p>
-              </Card>
             )}
-          </div>
-        </div>
+
+            {/* Search */}
+            <div className="relative mb-6">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400 w-5 h-5" />
+              <Input
+                placeholder="Search messages..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-11 text-sm sm:text-base"
+              />
+            </div>
+
+            {/* Messages Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+              {/* Messages List */}
+              <div className="space-y-3">
+                {filteredMessages.length === 0 ? (
+                  <Card className="p-8 sm:p-12 text-center border-primary-100">
+                    <Inbox className="w-16 h-16 mx-auto text-primary-300 mb-4" />
+                    <h3 className="text-lg sm:text-xl font-semibold text-primary-900 mb-2">No messages yet</h3>
+                    <p className="text-sm sm:text-base text-primary-600 mb-4">
+                      Start a conversation with recruiters or career advisors
+                    </p>
+                    <Button
+                      onClick={() => setShowCompose(true)}
+                      className="bg-primary-500 hover:bg-primary-600 text-white"
+                    >
+                      <Send className="w-4 h-4 mr-2" />
+                      Send First Message
+                    </Button>
+                  </Card>
+                ) : (
+                  filteredMessages.map((message) => (
+                    <Card
+                      key={message.id}
+                      className={`cursor-pointer transition-all duration-300 hover:shadow-md ${
+                        selectedMessage?.id === message.id
+                          ? "border-primary-500 bg-primary-50/50"
+                          : message.is_read
+                            ? "border-primary-100"
+                            : "border-primary-300 bg-primary-50/30"
+                      }`}
+                      onClick={() => {
+                        setSelectedMessage(message)
+                        if (!message.is_read && message.receiver_id === user?.id) {
+                          markAsRead(message.id)
+                        }
+                      }}
+                    >
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              {!message.is_read && message.receiver_id === user?.id && (
+                                <Badge variant="secondary" className="bg-primary-500 text-white text-xs px-2 py-0.5">
+                                  New
+                                </Badge>
+                              )}
+                              <CardTitle className="text-sm sm:text-base text-primary-900 truncate">
+                                {message.subject}
+                              </CardTitle>
+                            </div>
+                            <CardDescription className="text-xs sm:text-sm">
+                              {message.sender_id === user?.id ? "Sent" : "Received"} •{" "}
+                              {new Date(message.sent_at).toLocaleDateString()}
+                            </CardDescription>
+                          </div>
+                          <Mail
+                            className={`w-5 h-5 shrink-0 ${message.is_read ? "text-primary-300" : "text-primary-500"}`}
+                          />
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-xs sm:text-sm text-primary-700 line-clamp-2">{message.message}</p>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+
+              {/* Message Detail */}
+              <div className="lg:sticky lg:top-24 lg:h-fit">
+                {selectedMessage ? (
+                  <Card className="border-primary-200">
+                    <CardHeader className="border-b border-primary-100">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 rounded-full bg-primary-100">
+                          <User className="w-5 h-5 text-primary-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-lg sm:text-xl text-primary-900 mb-1 break-words">
+                            {selectedMessage.subject}
+                          </CardTitle>
+                          <CardDescription className="text-xs sm:text-sm">
+                            {selectedMessage.sender_id === user?.id ? "You sent this message" : "Message received"} •{" "}
+                            {new Date(selectedMessage.sent_at).toLocaleString()}
+                          </CardDescription>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                      <p className="text-sm sm:text-base text-primary-700 whitespace-pre-wrap leading-relaxed">
+                        {selectedMessage.message}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card className="p-8 sm:p-12 text-center border-primary-100 hidden lg:block">
+                    <MessageSquare className="w-16 h-16 mx-auto text-primary-300 mb-4" />
+                    <h3 className="text-lg sm:text-xl font-semibold text-primary-900 mb-2">Select a message</h3>
+                    <p className="text-sm sm:text-base text-primary-600">
+                      Choose a message from the list to view its content
+                    </p>
+                  </Card>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </main>
     </div>
   )
