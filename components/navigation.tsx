@@ -43,12 +43,10 @@ export function Navigation() {
 
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/quiz", label: "Quiz" },
     { href: "/jobs", label: "Jobs" },
     { href: "/skills", label: "Skills" },
     { href: "/career-path", label: "Career Path" },
     { href: "/messages", label: "Messages" },
-    { href: "/resume", label: "Resume" },
     { href: "/about", label: "About" },
   ]
 
