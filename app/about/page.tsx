@@ -22,59 +22,6 @@ import Link from "next/link"
 import Image from "next/image"
 import { Navigation } from "@/components/navigation"
 
-const teamMembers = [
-  {
-    name: "Sarim Siddiqui",
-    role: "Founder & CEO",
-    bio: "Third-Year Computer Science student building CareerCove to help students find careers they love—because I've been through the confusion myself.",
-    expertise: ["Full-Stack Development", "Data Science", "Cybersecurity", "Machine Learning"],
-    image: "/placeholder.svg?height=200&width=200",
-    linkedin: "#",
-  },
-  {
-    name: "Ryan",
-    role: "CFO",
-    bio: "Financial strategist ensuring CareerCove's sustainable growth while maintaining our student-first mission.",
-    expertise: [
-      "Financial Planning & Analysis (FP&A)",
-      "Budgeting and Forecasting",
-      "Cash Flow Management",
-      "Financial Reporting & Compliance",
-    ],
-    image: "/placeholder.svg?height=200&width=200",
-    linkedin: "#",
-  },
-  {
-    name: "Wasil Siddiqui",
-    role: "Lead Finance Department",
-    bio: "Data-driven finance professional optimizing CareerCove's financial operations and investment strategies.",
-    expertise: [
-      "Budgeting & Forecasting",
-      "Data-Driven Decision Making",
-      "Cash Flow Management",
-      "Investment Planning",
-    ],
-    image: "/placeholder.svg?height=200&width=200",
-    linkedin: "#",
-  },
-  {
-    name: "Anas Jamal",
-    role: "Data Analytics & Machine Learning",
-    bio: "PhD in Machine Learning from Stanford. Previously led AI initiatives at Microsoft and Tesla.",
-    expertise: ["Machine Learning", "AI Architecture", "Data Science"],
-    image: "/placeholder.svg?height=200&width=200",
-    linkedin: "#",
-  },
-  {
-    name: "Emily Johnson",
-    role: "Head of Psychology",
-    bio: "Licensed career counselor and organizational psychologist with expertise in career assessment.",
-    expertise: ["Career Psychology", "Assessment Design", "User Research"],
-    image: "/placeholder.svg?height=200&width=200",
-    linkedin: "#",
-  },
-]
-
 const howItWorks = [
   {
     step: "1",
@@ -112,6 +59,44 @@ const howItWorks = [
       "Receive tailored career paths, skill development plans, and mentor connections based on your unique profile.",
     icon: BarChart3,
     details: ["Custom career roadmaps", "Skill gap analysis", "Mentor matching", "Learning recommendations"],
+  },
+]
+
+const teamMembers = [
+  {
+    name: "Sarim Siddiqui",
+    role: "Co-Founder & CEO",
+    bio: "AI researcher with expertise in machine learning and career development. Leading the technical vision at CareerCove.",
+    image: "/professional-businessman.png",
+    expertise: ["AI/ML", "Data Science", "Machine Learning", "Career Development"],
+  },
+  {
+    name: "Ryan Siddiqui",
+    role: "Co-Founder & CTO",
+    bio: "Full-stack engineer specializing in scalable systems and user experience. Building the platform infrastructure.",
+    image: "/tech-professional.png",
+    expertise: ["Full-Stack Development", "System Architecture", "UX Design", "Cloud Infrastructure"],
+  },
+  {
+    name: "Wasi Siddiqui",
+    role: "Head of Product",
+    bio: "Product strategist focused on creating impactful user experiences. Driving product innovation and growth.",
+    image: "/product-manager-brainstorm.png",
+    expertise: ["Product Strategy", "User Research", "Growth", "Analytics"],
+  },
+  {
+    name: "Emily Chen",
+    role: "Lead Data Scientist",
+    bio: "PhD in Psychology with expertise in career development theory and predictive analytics.",
+    image: "/data-scientist-workspace.png",
+    expertise: ["Psychology", "Statistics", "Predictive Modeling", "Research"],
+  },
+  {
+    name: "Marcus Johnson",
+    role: "Senior Engineer",
+    bio: "Backend specialist with experience in building high-performance AI systems and data pipelines.",
+    image: "/software-engineer-workspace.png",
+    expertise: ["Backend Development", "AI Systems", "Database Design", "API Development"],
   },
 ]
 
