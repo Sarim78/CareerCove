@@ -7,11 +7,16 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { CheckCircle2, XCircle, AlertCircle } from "lucide-react"
+
+/**
+ * Authentication Page
+ * Frontend-only version: Handles UI for sign-in and sign-up without backend integration.
+ * Includes password strength validation and input sanitization.
+ */
 
 function calculatePasswordStrength(password: string): {
   strength: "weak" | "medium" | "strong"
@@ -112,27 +117,12 @@ export default function AuthPage() {
         throw new Error("Please fill in all fields")
       }
 
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        throw new Error("Please enter a valid email address")
-      }
+      // Mock delay to simulate network request
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      const supabase = createClient()
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (signInError) {
-        if (signInError.message.includes("Invalid login credentials")) {
-          throw new Error("Invalid email or password. Please try again.")
-        }
-        throw signInError
-      }
-
-      setSuccess("Login successful! Redirecting...")
+      setSuccess("Login successful! Redirecting to home...")
       setTimeout(() => {
-        router.push("/profile")
-        router.refresh()
+        router.push("/")
       }, 1000)
     } catch (err: any) {
       setError(err.message || "Login failed. Please try again.")
@@ -178,26 +168,10 @@ export default function AuthPage() {
 
       setIsLoading(true)
 
-      const supabase = createClient()
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/profile`,
-          data: {
-            full_name: fullName,
-          },
-        },
-      })
+      // Mock delay
+      await new Promise((resolve) => setTimeout(resolve, 1500))
 
-      if (signUpError) {
-        if (signUpError.message.includes("already registered")) {
-          throw new Error("This email is already registered. Please sign in instead.")
-        }
-        throw signUpError
-      }
-
-      setSuccess("Registration successful! Please check your email to confirm your account.")
+      setSuccess("Registration successful! (Mock mode: No email sent)")
       setRegisterData({
         fullName: "",
         email: "",

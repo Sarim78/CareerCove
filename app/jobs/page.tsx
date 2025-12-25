@@ -8,87 +8,71 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Briefcase, MapPin, Clock, DollarSign, Search, Bookmark, BookmarkCheck, ArrowRight } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
 
+/**
+ * Jobs Page
+ * Frontend-only version: Displays mock job listings and handles filtering locally.
+ */
 export default function JobsPage() {
   const [jobs, setJobs] = useState<any[]>([])
   const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterField, setFilterField] = useState("all")
   const [filterLevel, setFilterLevel] = useState("all")
   const [filterType, setFilterType] = useState("all")
-  const router = useRouter()
-  const supabase = createClient()
 
   useEffect(() => {
-    checkUser()
-    loadJobs()
-    loadSavedJobs()
+    // Load mock job data
+    const mockJobs = [
+      {
+        id: "1",
+        title: "Senior UX Designer",
+        company: "DesignCo",
+        location: "Remote",
+        job_type: "full-time",
+        salary_range: "$120k - $160k",
+        description: "Leading the design for our core product...",
+        career_field: "creative",
+        experience_level: "senior",
+        skills_required: ["Figma", "Design Systems", "User Research"],
+      },
+      {
+        id: "2",
+        title: "Frontend Engineer",
+        company: "TechFlow",
+        location: "New York, NY",
+        job_type: "full-time",
+        salary_range: "$130k - $170k",
+        description: "Building modern web applications with React and Next.js...",
+        career_field: "technology",
+        experience_level: "mid",
+        skills_required: ["React", "TypeScript", "Tailwind CSS"],
+      },
+      {
+        id: "3",
+        title: "Marketing Intern",
+        company: "GrowthLabs",
+        location: "San Francisco, CA",
+        job_type: "internship",
+        salary_range: "$30/hr",
+        description: "Assist with social media campaigns and analytics...",
+        career_field: "business",
+        experience_level: "entry",
+        skills_required: ["Social Media", "Content Creation", "Analytics"],
+      },
+    ]
+    setJobs(mockJobs)
+    setLoading(false)
   }, [])
 
-  const checkUser = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-    setUser(session?.user ?? null)
-  }
-
-  const loadJobs = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("jobs")
-        .select("*")
-        .eq("is_active", true)
-        .order("posted_date", { ascending: false })
-
-      if (error) throw error
-      setJobs(data || [])
-    } catch (error) {
-      // Error handled silently in production
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const loadSavedJobs = async () => {
-    if (!user) return
-
-    try {
-      const { data, error } = await supabase.from("saved_jobs").select("job_id").eq("user_id", user.id)
-
-      if (error) throw error
-
-      const savedJobIds = new Set(data?.map((item) => item.job_id) || [])
-      setSavedJobs(savedJobIds)
-    } catch (error) {
-      // Error handled silently
-    }
-  }
-
-  const toggleSaveJob = async (jobId: string) => {
-    if (!user) {
-      router.push("/auth")
-      return
-    }
-
-    try {
-      if (savedJobs.has(jobId)) {
-        await supabase.from("saved_jobs").delete().eq("user_id", user.id).eq("job_id", jobId)
-        setSavedJobs((prev) => {
-          const newSet = new Set(prev)
-          newSet.delete(jobId)
-          return newSet
-        })
-      } else {
-        await supabase.from("saved_jobs").insert({ user_id: user.id, job_id: jobId })
-        setSavedJobs((prev) => new Set(prev).add(jobId))
-      }
-    } catch (error) {
-      // Error handled silently
-    }
+  const toggleSaveJob = (jobId: string) => {
+    setSavedJobs((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(jobId)) newSet.delete(jobId)
+      else newSet.add(jobId)
+      return newSet
+    })
   }
 
   const filteredJobs = jobs.filter((job) => {
@@ -107,9 +91,7 @@ export default function JobsPage() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary-50 via-white to-accent-50">
       <Navigation />
-
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 max-w-7xl mx-auto w-full">
-        {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-900 mb-3 sm:mb-4">
             Find Your Perfect Job
@@ -119,7 +101,6 @@ export default function JobsPage() {
           </p>
         </div>
 
-        {/* Search and Filters */}
         <div className="mb-6 sm:mb-8 space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400 w-5 h-5" />
@@ -173,12 +154,10 @@ export default function JobsPage() {
           </div>
         </div>
 
-        {/* Results Count */}
         <p className="text-sm text-primary-600 mb-4">
           Showing {filteredJobs.length} {filteredJobs.length === 1 ? "job" : "jobs"}
         </p>
 
-        {/* Job Listings */}
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
@@ -236,22 +215,14 @@ export default function JobsPage() {
                       <span>{job.salary_range}</span>
                     </div>
                   </div>
-
                   <p className="text-sm text-primary-700 line-clamp-2">{job.description}</p>
-
                   <div className="flex flex-wrap gap-2">
                     {job.skills_required?.slice(0, 4).map((skill: string, index: number) => (
                       <Badge key={index} variant="secondary" className="bg-primary-50 text-primary-700 text-xs">
                         {skill}
                       </Badge>
                     ))}
-                    {job.skills_required?.length > 4 && (
-                      <Badge variant="secondary" className="bg-primary-50 text-primary-700 text-xs">
-                        +{job.skills_required.length - 4} more
-                      </Badge>
-                    )}
                   </div>
-
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
                     <Button className="flex-1 bg-primary-500 hover:bg-primary-600 text-white">
                       Apply Now

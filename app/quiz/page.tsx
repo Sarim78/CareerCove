@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { ArrowLeft, ArrowRight, Sparkles, Award, TrendingUp, Filter, X } from "lucide-react"
 import Link from "next/link"
 import { Navigation } from "@/components/navigation"
-import { createClient } from "@/lib/supabase/client"
+// import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
 const filterCategories = [
@@ -306,7 +306,7 @@ const QuizPage = () => {
       }, 300)
     } else {
       setShowResults(true)
-      saveQuizResults()
+      setIsSavingQuiz(false)
     }
   }, [currentQuestion, answers])
 
@@ -321,36 +321,7 @@ const QuizPage = () => {
   }, [currentQuestion])
 
   const saveQuizResults = async () => {
-    try {
-      setIsSavingQuiz(true)
-      const supabase = createClient()
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (!user) {
-        return
-      }
-
-      const answerKey = Object.values(answers).join("-")
-      const personalityType = Object.values(answers)[0]?.split("-")[0] || "analyst"
-
-      const { error } = await supabase.from("quiz_results").insert({
-        user_id: user.id,
-        answers: answers,
-        personality_type: personalityType,
-        completed_at: new Date().toISOString(),
-      })
-
-      if (error) {
-        // Error is handled silently
-      }
-    } catch (err) {
-      // Error is handled silently
-    } finally {
-      setIsSavingQuiz(false)
-    }
+    setIsSavingQuiz(false)
   }
 
   const progress = ((currentQuestion + 1) / quizQuestions.length) * 100

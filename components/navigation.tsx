@@ -1,39 +1,19 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Target, User, Menu, X } from "lucide-react"
+import { Target, Menu, X } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 
+/**
+ * Navigation Component
+ * Handles the main navigation bar, including desktop and mobile menus.
+ * Frontend-only version: Auth logic removed.
+ */
 export function Navigation() {
   const pathname = usePathname()
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  useEffect(() => {
-    const supabase = createClient()
-
-    const checkSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      setUser(session?.user ?? null)
-      setLoading(false)
-    }
-
-    checkSession()
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-
-    return () => subscription?.unsubscribe()
-  }, [])
 
   const isActive = (path: string) => {
     if (path === "/" && pathname === "/") return true
@@ -79,56 +59,27 @@ export function Navigation() {
             ></span>
           </Link>
         ))}
-        {!loading && (
-          <>
-            {user ? (
-              <Button
-                asChild
-                size="sm"
-                className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-              >
-                <Link href="/profile">
-                  <User className="w-4 h-4 mr-2" />
-                  Profile
-                </Link>
-              </Button>
-            ) : (
-              <>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
-                >
-                  <Link href="/auth">Sign In</Link>
-                </Button>
-                <Button
-                  asChild
-                  size="sm"
-                  className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                >
-                  <Link href="/quiz">Start Quiz</Link>
-                </Button>
-              </>
-            )}
-          </>
-        )}
+        <div className="flex items-center gap-3">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
+          >
+            <Link href="/auth">Sign In</Link>
+          </Button>
+          <Button
+            asChild
+            size="sm"
+            className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          >
+            <Link href="/quiz">Start Quiz</Link>
+          </Button>
+        </div>
       </nav>
 
       {/* Mobile Menu Button */}
       <div className="ml-auto lg:hidden flex items-center gap-2">
-        {!loading && user && (
-          <Button
-            asChild
-            size="sm"
-            className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 text-xs sm:text-sm"
-          >
-            <Link href="/profile">
-              <User className="w-3 sm:w-4 h-3 sm:h-4" />
-              <span className="hidden xs:inline ml-1">Profile</span>
-            </Link>
-          </Button>
-        )}
         <Button
           variant="ghost"
           size="sm"
@@ -157,24 +108,22 @@ export function Navigation() {
                 {link.label}
               </Link>
             ))}
-            {!loading && !user && (
-              <>
-                <hr className="my-2 border-primary-200" />
-                <Button
-                  asChild
-                  variant="outline"
-                  className="border-primary-300 text-primary-700 hover:bg-primary-50 w-full transition-all duration-300 bg-transparent text-xs sm:text-sm"
-                >
-                  <Link href="/auth">Sign In</Link>
-                </Button>
-                <Button
-                  asChild
-                  className="bg-primary-500 hover:bg-primary-600 text-white w-full shadow-lg hover:shadow-xl transition-all duration-300 text-xs sm:text-sm"
-                >
-                  <Link href="/quiz">Start Quiz</Link>
-                </Button>
-              </>
-            )}
+            <hr className="my-2 border-primary-200" />
+            <Button
+              asChild
+              variant="outline"
+              className="border-primary-300 text-primary-700 hover:bg-primary-50 w-full transition-all duration-300 bg-transparent text-xs sm:text-sm"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Link href="/auth">Sign In</Link>
+            </Button>
+            <Button
+              asChild
+              className="bg-primary-500 hover:bg-primary-600 text-white w-full shadow-lg hover:shadow-xl transition-all duration-300 text-xs sm:text-sm mt-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Link href="/quiz">Start Quiz</Link>
+            </Button>
           </nav>
         </div>
       )}
