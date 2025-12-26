@@ -23,8 +23,8 @@ export const metadata: Metadata = {
     "Discover your ideal career pathway with personalized guidance, industry insights, and skill-building resources.",
   generator: "v0.app",
   icons: {
-    icon: "/favicon.png",
-    apple: "/favicon.png",
+    icon: [{ url: "/icon.png" }, { url: "/favicon.png", type: "image/png" }],
+    apple: "/apple-icon.png",
   },
 }
 
