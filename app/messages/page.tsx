@@ -10,8 +10,11 @@ import { Badge } from "@/components/ui/badge"
 import { MessageSquare, Send, Inbox, Mail, Search, User } from "lucide-react"
 
 /**
- * Messages Page
- * Frontend-only version: Displays mock messages and handles local interactions.
+ * MessagesPage Component
+ *
+ * A secure messaging interface for users to communicate with career support
+ * teams and recruiters. Handles thread selection, read/unread states,
+ * and message composition locally.
  */
 export default function MessagesPage() {
   const [messages, setMessages] = useState<any[]>([])

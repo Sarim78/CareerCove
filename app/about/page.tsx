@@ -22,6 +22,13 @@ import Link from "next/link"
 import Image from "next/image"
 import { Navigation } from "@/components/navigation"
 
+/**
+ * AboutPage Component
+ *
+ * Provides background on CareerCove's mission, vision, and the technology
+ * behind our AI-powered career assessments. It also introduces the core
+ * founding team members and their specific expertise.
+ */
 const howItWorks = [
   {
     step: "1",

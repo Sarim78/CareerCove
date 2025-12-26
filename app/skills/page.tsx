@@ -10,8 +10,11 @@ import { Badge } from "@/components/ui/badge"
 import { Target, Plus, Trash2, TrendingUp, Award, BookOpen } from "lucide-react"
 
 /**
- * Skill Builder & Tracker
- * Frontend-only version: Tracks skills and progress using local state.
+ * SkillsPage Component
+ *
+ * An interactive skill builder and tracker. Allows users to catalog their
+ * technical and soft skills, set target proficiency levels, and visualize
+ * their progress towards career-readiness.
  */
 export default function SkillsPage() {
   const [skills, setSkills] = useState<any[]>([])

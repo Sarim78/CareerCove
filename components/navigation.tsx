@@ -8,8 +8,10 @@ import { useState } from "react"
 
 /**
  * Navigation Component
- * Handles the main navigation bar, including desktop and mobile menus.
- * Frontend-only version: Auth logic removed.
+ *
+ * The primary site header and navigation system. Features a responsive
+ * desktop and mobile menu, with active state tracking to help users
+ * navigate between the Home, Jobs, Skills, and Dashboard pages.
  */
 export function Navigation() {
   const pathname = usePathname()

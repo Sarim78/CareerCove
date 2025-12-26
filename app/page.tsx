@@ -8,6 +8,15 @@ import Link from "next/link"
 import Image from "next/image"
 import { Navigation } from "@/components/navigation"
 
+/**
+ * HomePage Component
+ *
+ * This is the landing page for CareerCove. It features a hero section with high-impact
+ * messaging, a features overview section highlighting the quiz, mentors, and resume
+ * enhancer, and social proof sections with testimonials and statistics.
+ *
+ * The page uses Framer Motion-like scroll animations via the Intersection Observer API.
+ */
 export default function HomePage() {
   const observerRef = useRef<IntersectionObserver | null>(null)
 

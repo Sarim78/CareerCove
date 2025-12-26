@@ -10,8 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Briefcase, MapPin, Clock, DollarSign, Search, Bookmark, BookmarkCheck, ArrowRight } from "lucide-react"
 
 /**
- * Jobs Page
- * Frontend-only version: Displays mock job listings and handles filtering locally.
+ * JobsPage Component
+ *
+ * A personalized job and internship board. Displays mock job listings that
+ * can be filtered by career field, experience level, and job type.
+ * Includes local state management for saving/bookmarking interesting opportunities.
  */
 export default function JobsPage() {
   const [jobs, setJobs] = useState<any[]>([])

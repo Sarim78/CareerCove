@@ -13,9 +13,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { CheckCircle2, XCircle, AlertCircle } from "lucide-react"
 
 /**
- * Authentication Page
- * Frontend-only version: Handles UI for sign-in and sign-up without backend integration.
- * Includes password strength validation and input sanitization.
+ * AuthPage Component
+ *
+ * Handles user authentication (Sign In and Sign Up).
+ * Includes client-side logic for input sanitization, password strength validation,
+ * and simulated authentication flows for a seamless frontend experience.
  */
 
 function calculatePasswordStrength(password: string): {

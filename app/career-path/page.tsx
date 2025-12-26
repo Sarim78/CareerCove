@@ -9,8 +9,11 @@ import { Badge } from "@/components/ui/badge"
 import { TrendingUp, Target, Calendar, Award, Plus, Trash2, CheckCircle2 } from "lucide-react"
 
 /**
- * Career Path Simulator
- * Frontend-only version: Manages career roadmap visualization using local state.
+ * CareerPathPage Component
+ *
+ * A visual simulator for career growth. Users can create a roadmap from their
+ * current role to their target role, adding specific milestones and timelines
+ * to visualize their professional development over several years.
  */
 export default function CareerPathPage() {
   const [careerPaths, setCareerPaths] = useState<any[]>([])

@@ -1,3 +1,10 @@
+/**
+ * QuizPage Component
+ *
+ * The flagship career/personal assessment quiz. Features a multi-step interface
+ * that asks about user passions, work styles, and goals to provide detailed
+ * career path recommendations based on a sophisticated matching algorithm.
+ */
 "use client"
 
 import { useState, useCallback } from "react"

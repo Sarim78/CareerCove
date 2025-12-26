@@ -8,8 +8,10 @@ import { Navigation } from "@/components/navigation"
 import { useRouter } from "next/navigation"
 
 /**
- * Profile Page
- * Frontend-only version: Displays mock user data and results.
+ * ProfilePage Component
+ *
+ * The user dashboard showcasing account details, assessment results, saved careers,
+ * and upcoming mentor sessions. Serves as a central hub for the user's career journey.
  */
 
 export default function ProfilePage() {
