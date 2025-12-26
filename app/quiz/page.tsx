@@ -13,20 +13,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
-import { ArrowLeft, ArrowRight, Sparkles, Award, TrendingUp, Filter, X } from "lucide-react"
+import { ArrowLeft, ArrowRight, Sparkles, Award, TrendingUp, X } from "lucide-react"
 import Link from "next/link"
 import { Navigation } from "@/components/navigation"
 // import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
 const filterCategories = [
-  { id: "technology", icon: <TrendingUp />, label: "Technology" },
-  { id: "science", icon: <Sparkles />, label: "Science" },
-  { id: "creative", icon: <Award />, label: "Creative" },
-  { id: "business", icon: <X />, label: "Business" },
-  { id: "healthcare", icon: <Sparkles />, label: "Healthcare" },
-  { id: "finance", icon: <TrendingUp />, label: "Finance" },
-  { id: "education", icon: <Award />, label: "Education" },
+  { id: "technology", icon: <TrendingUp className="w-4 h-4" />, label: "Technology" },
+  { id: "science", icon: <Sparkles className="w-4 h-4" />, label: "Science" },
+  { id: "creative", icon: <Award className="w-4 h-4" />, label: "Creative" },
+  { id: "business", icon: <X className="w-4 h-4" />, label: "Business" },
+  { id: "healthcare", icon: <Sparkles className="w-4 h-4" />, label: "Healthcare" },
+  { id: "finance", icon: <TrendingUp className="w-4 h-4" />, label: "Finance" },
+  { id: "education", icon: <Award className="w-4 h-4" />, label: "Education" },
 ]
 
 const quizQuestions = [
@@ -406,7 +406,7 @@ const QuizPage = () => {
                     variant="outline"
                     className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300"
                   >
-                    <Filter className="w-4 h-4 mr-2" />
+                    <X className="w-4 h-4 mr-2" />
                     Filter by Industry
                   </Button>
                 </div>
@@ -559,7 +559,7 @@ const QuizPage = () => {
               <Card className="bg-white border-primary-200/50 shadow-lg">
                 <CardContent className="text-center py-12">
                   <div className="mx-auto p-6 rounded-2xl bg-gradient-to-br from-orange-100 to-orange-200 w-fit mb-6">
-                    <Filter className="h-12 w-12 text-orange-600" />
+                    <X className="h-12 w-12 text-orange-600" />
                   </div>
                   <h3 className="text-xl font-semibold text-primary-800 mb-3">No matches for selected filters</h3>
                   <p className="text-primary-600 mb-6">
