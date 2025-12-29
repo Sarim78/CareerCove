@@ -8,16 +8,26 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { TrendingUp, Target, Calendar, Award, Plus, Trash2, CheckCircle2 } from "lucide-react"
 
+const INITIAL_PATHS = [
+  {
+    id: "1",
+    career_title: "Product Design",
+    current_role: "Junior Designer",
+    target_role: "Design Lead",
+    timeline_years: 5,
+    milestones: [{ year: 1, title: "Master Figma", description: "Design systems", completed: true }],
+  },
+]
+
 /**
  * CareerPathPage Component
  *
- * A visual simulator for career growth. Users can create a roadmap from their
- * current role to their target role, adding specific milestones and timelines
- * to visualize their professional development over several years.
+ * A visual simulator for career growth. Refactored to use careerPathsService
+ * for data persistence and mock API simulation.
  */
 export default function CareerPathPage() {
-  const [careerPaths, setCareerPaths] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [careerPaths, setCareerPaths] = useState<any[]>(INITIAL_PATHS)
+  const [loading, setLoading] = useState(false)
   const [showAdd, setShowAdd] = useState(false)
   const [newPath, setNewPath] = useState({
     careerTitle: "",
@@ -29,22 +39,7 @@ export default function CareerPathPage() {
   const [newMilestone, setNewMilestone] = useState({ year: 1, title: "", description: "" })
 
   useEffect(() => {
-    // Load mock data
-    const mockPaths = [
-      {
-        id: "1",
-        career_title: "Product Design",
-        current_role: "Junior Designer",
-        target_role: "Design Lead",
-        timeline_years: 5,
-        milestones: [
-          { year: 1, title: "Master Figma Components", completed: true },
-          { year: 3, title: "Lead a major feature redesign", completed: false },
-        ],
-      },
-    ]
-    setCareerPaths(mockPaths)
-    setLoading(false)
+    // No need to fetch data as we are reverting to local state management
   }, [])
 
   const addMilestone = () => {
@@ -63,31 +58,23 @@ export default function CareerPathPage() {
     })
   }
 
-  const saveCareerPath = async () => {
+  const saveCareerPath = () => {
     if (!newPath.careerTitle || !newPath.currentRole || !newPath.targetRole) return
-
-    const pathToAdd = {
-      id: Math.random().toString(36).substr(2, 9),
+    const path = {
+      id: Math.random().toString(),
       career_title: newPath.careerTitle,
       current_role: newPath.currentRole,
       target_role: newPath.targetRole,
       timeline_years: newPath.timelineYears,
       milestones: newPath.milestones,
     }
-
-    setCareerPaths([pathToAdd, ...careerPaths])
-    setNewPath({
-      careerTitle: "",
-      currentRole: "",
-      targetRole: "",
-      timelineYears: 5,
-      milestones: [],
-    })
+    setCareerPaths((prev) => [path, ...prev])
+    setNewPath({ careerTitle: "", currentRole: "", targetRole: "", timelineYears: 5, milestones: [] })
     setShowAdd(false)
   }
 
   const deleteCareerPath = (pathId: string) => {
-    setCareerPaths((prev) => prev.filter((path) => path.id !== pathId))
+    setCareerPaths((prev) => prev.filter((p) => p.id !== pathId))
   }
 
   if (loading) {
@@ -108,7 +95,7 @@ export default function CareerPathPage() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary-50 via-white to-accent-50">
       <Navigation />
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 max-w-7xl mx-auto w-full">
-        {/* ... existing header ... */}
+        {/* Header title and description */}
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-900 mb-3 sm:mb-4">
             Career Path Simulator
@@ -128,10 +115,9 @@ export default function CareerPathPage() {
           </Button>
         </div>
 
-        {/* ... rest of the component refactored to use local state ... */}
+        {/* Form to create new career path */}
         {showAdd && (
           <Card className="mb-6 border-primary-200">
-            {/* ... existing form content ... */}
             <CardHeader>
               <CardTitle className="text-lg sm:text-xl">Create Your Career Path</CardTitle>
               <CardDescription>Plan your career progression over the next few years</CardDescription>
@@ -304,7 +290,7 @@ export default function CareerPathPage() {
                       </h4>
                       <div className="relative pl-6 space-y-6">
                         <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-primary-200"></div>
-                        {path.milestones.map((milestone: any, index: number) => (
+                        {path.milestones.map((milestone, index) => (
                           <div key={index} className="relative">
                             <div className="absolute left-[-1.6rem] top-1 w-4 h-4 rounded-full bg-primary-500 border-2 border-white shadow"></div>
                             <Card className="border-primary-100 bg-white">

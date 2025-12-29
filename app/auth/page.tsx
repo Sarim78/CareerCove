@@ -119,7 +119,6 @@ export default function AuthPage() {
         throw new Error("Please fill in all fields")
       }
 
-      // Mock delay to simulate network request
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       setSuccess("Login successful! Redirecting to home...")
@@ -170,10 +169,9 @@ export default function AuthPage() {
 
       setIsLoading(true)
 
-      // Mock delay
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      setSuccess("Registration successful! (Mock mode: No email sent)")
+      setSuccess("Registration successful! You can now sign in.")
       setRegisterData({
         fullName: "",
         email: "",

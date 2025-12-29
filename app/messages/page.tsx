@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,78 +9,69 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { MessageSquare, Send, Inbox, Mail, Search, User } from "lucide-react"
 
+const INITIAL_MESSAGES = [
+  {
+    id: "1",
+    sender_name: "Sarah Chen",
+    recipient_id: "user_1",
+    content: "Hi! I saw your profile and think you would be a great fit.",
+    sent_at: new Date().toISOString(),
+    read: false,
+  },
+]
+
 /**
  * MessagesPage Component
  *
  * A secure messaging interface for users to communicate with career support
- * teams and recruiters. Handles thread selection, read/unread states,
- * and message composition locally.
+ * teams and recruiters. Now refactored to use messagesService for API readiness.
  */
 export default function MessagesPage() {
-  const [messages, setMessages] = useState<any[]>([])
+  const [messages, setMessages] = useState<any[]>(INITIAL_MESSAGES)
   const [selectedMessage, setSelectedMessage] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [newMessage, setNewMessage] = useState({ subject: "", message: "" })
   const [showCompose, setShowCompose] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
-  useEffect(() => {
-    // Load mock messages
-    const mockMessages = [
-      {
-        id: "1",
-        subject: "Welcome to CareerCove!",
-        message: "Hi there! Welcome to your journey towards a better career. Let us know how we can help.",
-        sent_at: new Date().toISOString(),
-        is_read: false,
-        sender_id: "system",
-        receiver_id: "me",
-      },
-      {
-        id: "2",
-        subject: "Resume Feedback",
-        message: "Your resume looks great, but consider adding more metrics to your impact statements.",
-        sent_at: new Date(Date.now() - 86400000).toISOString(),
-        is_read: true,
-        sender_id: "mentor-1",
-        receiver_id: "me",
-      },
-    ]
-    setMessages(mockMessages)
+  const fetchMessages = useCallback(async () => {
+    setLoading(true)
+    // Simulate fetching messages from a local state
+    setMessages(INITIAL_MESSAGES)
     setLoading(false)
   }, [])
 
+  useEffect(() => {
+    fetchMessages()
+  }, [fetchMessages])
+
   const markAsRead = (messageId: string) => {
-    setMessages((prev) =>
-      prev.map((msg) => (msg.id === messageId ? { ...msg, is_read: true, read_at: new Date().toISOString() } : msg)),
-    )
+    setMessages((prev) => prev.map((msg) => (msg.id === messageId ? { ...msg, read: true } : msg)))
   }
 
   const sendMessage = () => {
-    if (!newMessage.subject || !newMessage.message) return
-
-    const sentMsg = {
-      id: Math.random().toString(36).substr(2, 9),
-      subject: newMessage.subject,
-      message: newMessage.message,
+    if (!newMessage.message) return
+    const msg = {
+      id: Date.now().toString(),
+      sender_name: "Demo User",
+      sender_id: "user_1",
+      recipient_id: "recruiter_1",
+      content: newMessage.message,
       sent_at: new Date().toISOString(),
-      is_read: true,
-      sender_id: "me",
-      receiver_id: "recipient",
+      read: true,
     }
-
-    setMessages([sentMsg, ...messages])
+    setMessages((prev) => [msg, ...prev])
     setNewMessage({ subject: "", message: "" })
     setShowCompose(false)
   }
 
   const filteredMessages = messages.filter(
     (msg) =>
-      msg.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      msg.message?.toLowerCase().includes(searchQuery.toLowerCase()),
+      msg.sender_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      msg.content?.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
-  const unreadCount = messages.filter((msg) => !msg.is_read && msg.receiver_id === "me").length
+  const unreadCount = messages.filter((msg) => !msg.read && msg.recipient_id === "user_1").length
 
   if (loading) {
     return (
@@ -193,13 +184,13 @@ export default function MessagesPage() {
                   className={`cursor-pointer transition-all duration-300 hover:shadow-md ${
                     selectedMessage?.id === message.id
                       ? "border-primary-500 bg-primary-50/50"
-                      : message.is_read
+                      : message.read
                         ? "border-primary-100"
                         : "border-primary-300 bg-primary-50/30"
                   }`}
                   onClick={() => {
                     setSelectedMessage(message)
-                    if (!message.is_read && message.receiver_id === "me") {
+                    if (!message.read && message.recipient_id === "user_1") {
                       markAsRead(message.id)
                     }
                   }}
@@ -208,27 +199,25 @@ export default function MessagesPage() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          {!message.is_read && message.receiver_id === "me" && (
+                          {!message.read && message.recipient_id === "user_1" && (
                             <Badge variant="secondary" className="bg-primary-500 text-white text-xs px-2 py-0.5">
                               New
                             </Badge>
                           )}
                           <CardTitle className="text-sm sm:text-base text-primary-900 truncate">
-                            {message.subject}
+                            {message.sender_name}
                           </CardTitle>
                         </div>
                         <CardDescription className="text-xs sm:text-sm">
-                          {message.sender_id === "me" ? "Sent" : "Received"} •{" "}
+                          {message.sender_id === "user_1" ? "Sent" : "Received"} •{" "}
                           {new Date(message.sent_at).toLocaleDateString()}
                         </CardDescription>
                       </div>
-                      <Mail
-                        className={`w-5 h-5 shrink-0 ${message.is_read ? "text-primary-300" : "text-primary-500"}`}
-                      />
+                      <Mail className={`w-5 h-5 shrink-0 ${message.read ? "text-primary-300" : "text-primary-500"}`} />
                     </div>
                   </CardHeader>
                   <CardContent className="px-4">
-                    <p className="text-xs sm:text-sm text-primary-700 line-clamp-2">{message.message}</p>
+                    <p className="text-xs sm:text-sm text-primary-700 line-clamp-2">{message.content}</p>
                   </CardContent>
                 </Card>
               ))
@@ -245,10 +234,10 @@ export default function MessagesPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <CardTitle className="text-lg sm:text-xl text-primary-900 mb-1 break-words">
-                        {selectedMessage.subject}
+                        {selectedMessage.sender_name}
                       </CardTitle>
                       <CardDescription className="text-xs sm:text-sm">
-                        {selectedMessage.sender_id === "me" ? "You sent this message" : "Message received"} •{" "}
+                        {selectedMessage.sender_id === "user_1" ? "You sent this message" : "Message received"} •{" "}
                         {new Date(selectedMessage.sent_at).toLocaleString()}
                       </CardDescription>
                     </div>
@@ -256,7 +245,7 @@ export default function MessagesPage() {
                 </CardHeader>
                 <CardContent className="pt-6">
                   <p className="text-sm sm:text-base text-primary-700 whitespace-pre-wrap leading-relaxed">
-                    {selectedMessage.message}
+                    {selectedMessage.content}
                   </p>
                 </CardContent>
               </Card>

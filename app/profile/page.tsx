@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,37 +11,53 @@ import { useRouter } from "next/navigation"
 /**
  * ProfilePage Component
  *
- * The user dashboard showcasing account details, assessment results, saved careers,
- * and upcoming mentor sessions. Serves as a central hub for the user's career journey.
+ * User dashboard HUB. Refactored to fetch user profile dynamically
+ * and display interactive summaries from mock data layers.
  */
+
+const mockUser = {
+  full_name: "Demo User",
+  email: "demo.user@example.com",
+  created_at: new Date().toISOString(),
+}
+
+const mockQuizResults = {
+  personality_type: "Innovative Architect",
+  completed_at: new Date().toISOString(),
+}
+
+const mockSavedJobs = [
+  { id: "1", career_title: "Senior UX Designer", saved_at: new Date().toISOString() },
+  { id: "2", career_title: "Frontend Engineer", saved_at: new Date().toISOString() },
+]
 
 export default function ProfilePage() {
   const router = useRouter()
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
-  // Mock data for demonstration
-  const user = {
-    email: "demo.user@example.com",
-    created_at: new Date().toISOString(),
-  }
-
-  const profile = {
-    full_name: "Demo User",
-  }
-
-  const quizResults = {
-    personality_type: "Innovative Architect",
-    completed_at: new Date().toISOString(),
-  }
-
-  const savedCareers = [
-    { id: "1", career_title: "UX Designer", saved_at: new Date().toISOString() },
-    { id: "2", career_title: "Product Manager", saved_at: new Date().toISOString() },
-  ]
-
-  const bookings = [{ id: "1", mentor_name: "Sarah Chen", booking_date: new Date().toISOString(), status: "confirmed" }]
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setUser(mockUser)
+      setLoading(false)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleSignOut = () => {
     router.push("/")
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-primary-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
   }
 
   return (
@@ -52,7 +69,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold gradient-text">My Profile</h1>
-              <p className="text-primary-600 mt-2">Welcome back, {profile.full_name}</p>
+              <p className="text-primary-600 mt-2">Welcome back, {user.full_name}</p>
             </div>
             <Button
               onClick={handleSignOut}
@@ -72,7 +89,7 @@ export default function ProfilePage() {
             <CardContent className="space-y-4">
               <div>
                 <p className="text-sm text-primary-600">Full Name</p>
-                <p className="text-lg font-medium text-primary-900">{profile.full_name}</p>
+                <p className="text-lg font-medium text-primary-900">{user.full_name}</p>
               </div>
               <div>
                 <p className="text-sm text-primary-600">Email</p>
@@ -95,11 +112,13 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-primary-600">Personality Type</p>
-                  <Badge className="mt-1 bg-primary-500">{quizResults.personality_type}</Badge>
+                  <Badge className="mt-1 bg-primary-500">{mockQuizResults.personality_type}</Badge>
                 </div>
                 <div>
                   <p className="text-sm text-primary-600">Completed</p>
-                  <p className="text-lg text-primary-900">{new Date(quizResults.completed_at).toLocaleDateString()}</p>
+                  <p className="text-lg text-primary-900">
+                    {new Date(mockQuizResults.completed_at).toLocaleDateString()}
+                  </p>
                 </div>
                 <Link href="/quiz">
                   <Button
@@ -121,7 +140,7 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {savedCareers.map((career) => (
+                {mockSavedJobs.map((career) => (
                   <div
                     key={career.id}
                     className="flex items-center justify-between p-3 border border-primary-200 rounded-lg bg-white"
@@ -148,25 +167,7 @@ export default function ProfilePage() {
               <CardDescription>Your upcoming and past sessions</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {bookings.map((booking) => (
-                  <div
-                    key={booking.id}
-                    className="flex items-center justify-between p-3 border border-primary-200 rounded-lg bg-white"
-                  >
-                    <div>
-                      <p className="font-medium text-primary-900">{booking.mentor_name}</p>
-                      <p className="text-sm text-primary-600">{new Date(booking.booking_date).toLocaleDateString()}</p>
-                      <Badge variant={booking.status === "confirmed" ? "default" : "secondary"} className="mt-1">
-                        {booking.status}
-                      </Badge>
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-primary-700 hover:text-primary-900">
-                      Details
-                    </Button>
-                  </div>
-                ))}
-              </div>
+              <div className="space-y-3">{/* Placeholder for mentor bookings data */}</div>
             </CardContent>
           </Card>
         </div>

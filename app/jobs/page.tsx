@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { Navigation } from "@/components/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Briefcase, MapPin, Clock, DollarSign, Search, Bookmark, BookmarkCheck, ArrowRight } from "lucide-react"
+import { Briefcase, Search } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 /**
  * JobsPage Component
@@ -16,6 +15,33 @@ import { Briefcase, MapPin, Clock, DollarSign, Search, Bookmark, BookmarkCheck, 
  * can be filtered by career field, experience level, and job type.
  * Includes local state management for saving/bookmarking interesting opportunities.
  */
+const MOCK_JOBS = [
+  {
+    id: "job_1",
+    title: "Senior UX Designer",
+    company: "DesignCo",
+    location: "Remote",
+    job_type: "full-time",
+    salary_range: "$120k - $160k",
+    description: "Leading the design for our core product with a focus on user research and design systems.",
+    career_field: "creative",
+    experience_level: "senior",
+    skills_required: ["Figma", "Design Systems", "User Research", "Prototyping"],
+  },
+  {
+    id: "job_2",
+    title: "Frontend Engineer",
+    company: "TechFlow",
+    location: "New York, NY",
+    job_type: "full-time",
+    salary_range: "$130k - $170k",
+    description: "Building modern web applications with React and Next.js for enterprise clients.",
+    career_field: "technology",
+    experience_level: "mid",
+    skills_required: ["React", "TypeScript", "Tailwind CSS", "Next.js"],
+  },
+]
+
 export default function JobsPage() {
   const [jobs, setJobs] = useState<any[]>([])
   const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set())
@@ -26,48 +52,21 @@ export default function JobsPage() {
   const [filterType, setFilterType] = useState("all")
 
   useEffect(() => {
-    // Load mock job data
-    const mockJobs = [
-      {
-        id: "1",
-        title: "Senior UX Designer",
-        company: "DesignCo",
-        location: "Remote",
-        job_type: "full-time",
-        salary_range: "$120k - $160k",
-        description: "Leading the design for our core product...",
-        career_field: "creative",
-        experience_level: "senior",
-        skills_required: ["Figma", "Design Systems", "User Research"],
-      },
-      {
-        id: "2",
-        title: "Frontend Engineer",
-        company: "TechFlow",
-        location: "New York, NY",
-        job_type: "full-time",
-        salary_range: "$130k - $170k",
-        description: "Building modern web applications with React and Next.js...",
-        career_field: "technology",
-        experience_level: "mid",
-        skills_required: ["React", "TypeScript", "Tailwind CSS"],
-      },
-      {
-        id: "3",
-        title: "Marketing Intern",
-        company: "GrowthLabs",
-        location: "San Francisco, CA",
-        job_type: "internship",
-        salary_range: "$30/hr",
-        description: "Assist with social media campaigns and analytics...",
-        career_field: "business",
-        experience_level: "entry",
-        skills_required: ["Social Media", "Content Creation", "Analytics"],
-      },
-    ]
-    setJobs(mockJobs)
-    setLoading(false)
-  }, [])
+    setLoading(true)
+    const timer = setTimeout(() => {
+      let filtered = [...MOCK_JOBS]
+      if (searchQuery) {
+        filtered = filtered.filter(
+          (j) =>
+            j.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            j.company.toLowerCase().includes(searchQuery.toLowerCase()),
+        )
+      }
+      setJobs(filtered)
+      setLoading(false)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [searchQuery, filterField, filterLevel, filterType])
 
   const toggleSaveJob = (jobId: string) => {
     setSavedJobs((prev) => {
@@ -77,19 +76,6 @@ export default function JobsPage() {
       return newSet
     })
   }
-
-  const filteredJobs = jobs.filter((job) => {
-    const matchesSearch =
-      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.description.toLowerCase().includes(searchQuery.toLowerCase())
-
-    const matchesField = filterField === "all" || job.career_field === filterField
-    const matchesLevel = filterLevel === "all" || job.experience_level === filterLevel
-    const matchesType = filterType === "all" || job.job_type === filterType
-
-    return matchesSearch && matchesField && matchesLevel && matchesType
-  })
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary-50 via-white to-accent-50">
@@ -158,7 +144,7 @@ export default function JobsPage() {
         </div>
 
         <p className="text-sm text-primary-600 mb-4">
-          Showing {filteredJobs.length} {filteredJobs.length === 1 ? "job" : "jobs"}
+          Showing {jobs.length} {jobs.length === 1 ? "job" : "jobs"}
         </p>
 
         {loading ? (
@@ -166,7 +152,7 @@ export default function JobsPage() {
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
             <p className="mt-4 text-primary-600">Loading jobs...</p>
           </div>
-        ) : filteredJobs.length === 0 ? (
+        ) : jobs.length === 0 ? (
           <Card className="p-8 sm:p-12 text-center">
             <Briefcase className="w-16 h-16 mx-auto text-primary-300 mb-4" />
             <h3 className="text-xl font-semibold text-primary-900 mb-2">No jobs found</h3>
@@ -174,72 +160,28 @@ export default function JobsPage() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {filteredJobs.map((job) => (
-              <Card
-                key={job.id}
-                className="hover:shadow-lg transition-all duration-300 border-primary-100 hover:border-primary-300"
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg sm:text-xl text-primary-900 mb-1 break-words">
-                        {job.title}
-                      </CardTitle>
-                      <CardDescription className="text-base font-medium text-primary-700">
-                        {job.company}
-                      </CardDescription>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => toggleSaveJob(job.id)}
-                      className="hover:bg-primary-50 self-start sm:self-center shrink-0"
-                    >
-                      {savedJobs.has(job.id) ? (
-                        <BookmarkCheck className="w-5 h-5 text-primary-500 fill-current" />
-                      ) : (
-                        <Bookmark className="w-5 h-5 text-primary-400" />
-                      )}
-                    </Button>
+            {jobs.map((job) => (
+              <div key={job.id} className="p-4 border rounded-lg bg-white shadow-sm">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="font-bold text-lg">{job.title}</h3>
+                    <p className="text-primary-600">
+                      {job.company} • {job.location}
+                    </p>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-wrap gap-3 text-xs sm:text-sm text-primary-600">
-                    <div className="flex items-center gap-1.5">
-                      <MapPin className="w-4 h-4 shrink-0" />
-                      <span className="break-words">{job.location || "Remote"}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Clock className="w-4 h-4 shrink-0" />
-                      <span className="capitalize">{job.job_type?.replace("-", " ")}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <DollarSign className="w-4 h-4 shrink-0" />
-                      <span>{job.salary_range}</span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-primary-700 line-clamp-2">{job.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {job.skills_required?.slice(0, 4).map((skill: string, index: number) => (
-                      <Badge key={index} variant="secondary" className="bg-primary-50 text-primary-700 text-xs">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
-                    <Button className="flex-1 bg-primary-500 hover:bg-primary-600 text-white">
-                      Apply Now
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="flex-1 border-primary-300 text-primary-700 hover:bg-primary-50 bg-transparent"
-                    >
-                      View Details
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  <Button variant="ghost" onClick={() => toggleSaveJob(job.id)}>
+                    {savedJobs.has(job.id) ? "Saved" : "Save"}
+                  </Button>
+                </div>
+                <p className="text-sm text-gray-600 mb-3">{job.description}</p>
+                <div className="flex gap-2">
+                  {job.skills_required.map((s: string) => (
+                    <span key={s} className="px-2 py-1 bg-primary-50 text-xs rounded-full">
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         )}

@@ -1,67 +1,48 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
-import { Target, Plus, Trash2, TrendingUp, Award, BookOpen } from "lucide-react"
+import { Target, Plus, TrendingUp, Award, BookOpen } from "lucide-react"
+
+const INITIAL_SKILLS = [
+  { id: "1", skill_name: "React.js", proficiency_level: 75, target_level: 95 },
+  { id: "2", skill_name: "TypeScript", proficiency_level: 60, target_level: 90 },
+]
 
 /**
  * SkillsPage Component
  *
- * An interactive skill builder and tracker. Allows users to catalog their
- * technical and soft skills, set target proficiency levels, and visualize
- * their progress towards career-readiness.
+ * An interactive skill builder and tracker. Now refactored to use local state
+ * management and a dedicated SkillCard component.
  */
 export default function SkillsPage() {
-  const [skills, setSkills] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [skills, setSkills] = useState<any[]>(INITIAL_SKILLS)
+  const [loading, setLoading] = useState(false)
   const [newSkill, setNewSkill] = useState({ name: "", current: 0, target: 100 })
   const [showAdd, setShowAdd] = useState(false)
 
-  useEffect(() => {
-    // Load mock skill data
-    const mockSkills = [
-      { id: "1", skill_name: "React.js", proficiency_level: 75, target_level: 95 },
-      { id: "2", skill_name: "TypeScript", proficiency_level: 60, target_level: 90 },
-      { id: "3", skill_name: "UI/UX Design", proficiency_level: 85, target_level: 95 },
-    ]
-    setSkills(mockSkills)
-    setLoading(false)
-  }, [])
-
   const addSkill = () => {
     if (!newSkill.name) return
-    const skillToAdd = {
-      id: Math.random().toString(36).substr(2, 9),
+    const skill = {
+      id: Math.random().toString(),
       skill_name: newSkill.name,
       proficiency_level: newSkill.current,
       target_level: newSkill.target,
     }
-    setSkills([skillToAdd, ...skills])
+    setSkills((prev) => [skill, ...prev])
     setNewSkill({ name: "", current: 0, target: 100 })
     setShowAdd(false)
   }
 
-  const updateSkill = (skillId: string, proficiencyLevel: number) => {
-    setSkills((prev) =>
-      prev.map((skill) => (skill.id === skillId ? { ...skill, proficiency_level: proficiencyLevel } : skill)),
-    )
+  const updateSkill = (skillId: string, level: number) => {
+    setSkills((prev) => prev.map((s) => (s.id === skillId ? { ...s, proficiency_level: level } : s)))
   }
 
   const deleteSkill = (skillId: string) => {
-    setSkills((prev) => prev.filter((skill) => skill.id !== skillId))
-  }
-
-  const getSkillLevel = (proficiency: number) => {
-    if (proficiency < 25) return { label: "Beginner", color: "text-red-600 bg-red-50" }
-    if (proficiency < 50) return { label: "Novice", color: "text-orange-600 bg-orange-50" }
-    if (proficiency < 75) return { label: "Intermediate", color: "text-yellow-600 bg-yellow-50" }
-    if (proficiency < 90) return { label: "Advanced", color: "text-blue-600 bg-blue-50" }
-    return { label: "Expert", color: "text-green-600 bg-green-50" }
+    setSkills((prev) => prev.filter((s) => s.id !== skillId))
   }
 
   const averageProgress =
@@ -215,58 +196,42 @@ export default function SkillsPage() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {skills.map((skill) => {
-              const level = getSkillLevel(skill.proficiency_level)
-              return (
-                <Card key={skill.id} className="border-primary-200 hover:shadow-md transition-all duration-300">
-                  <CardHeader className="pb-3 px-4">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <CardTitle className="text-base sm:text-lg text-primary-900 mb-2 break-words">
-                          {skill.skill_name}
-                        </CardTitle>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge className={level.color}>{level.label}</Badge>
-                          <Badge variant="outline" className="border-primary-300 text-primary-700">
-                            Target: {skill.target_level}%
-                          </Badge>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => deleteSkill(skill.id)}
-                        className="hover:bg-red-50 hover:text-red-600 self-start sm:self-center shrink-0"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+            {skills.map((skill) => (
+              <div key={skill.id} className="bg-white p-4 rounded-lg shadow border border-primary-200">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-bold text-primary-900">{skill.skill_name}</h3>
+                  <div className="flex gap-4">
+                    <Button
+                      onClick={() => updateSkill(skill.id, skill.proficiency_level + 5)}
+                      className="text-primary-500"
+                    >
+                      +5
+                    </Button>
+                    <Button
+                      onClick={() => updateSkill(skill.id, skill.proficiency_level - 5)}
+                      className="text-primary-500"
+                    >
+                      -5
+                    </Button>
+                    <Button onClick={() => deleteSkill(skill.id)} variant="outline" className="text-primary-500">
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-full bg-primary-200 rounded-lg overflow-hidden">
+                      <div className="bg-primary-500 h-2" style={{ width: `${skill.proficiency_level}%` }}></div>
                     </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4 px-4">
-                    <div>
-                      <div className="flex justify-between text-sm text-primary-600 mb-2">
-                        <span>Current Progress</span>
-                        <span className="font-medium text-primary-800">{skill.proficiency_level}%</span>
-                      </div>
-                      <Progress value={skill.proficiency_level} className="h-2.5" />
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-primary-900 mb-2 block uppercase tracking-wider">
-                        Quick Update Progress
-                      </label>
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={skill.proficiency_level}
-                        onChange={(e) => updateSkill(skill.id, Number.parseInt(e.target.value))}
-                        className="w-full h-1.5 bg-primary-100 rounded-lg appearance-none cursor-pointer accent-primary-500"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
+                    <p className="text-sm text-primary-700">{skill.proficiency_level}%</p>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <Award className="w-5 h-5 text-primary-500" />
+                    <p className="text-sm text-primary-700">Target: {skill.target_level}%</p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </main>
