@@ -1,30 +1,61 @@
-# New Project
+# CareerCove
+**Discover Your Path. Build Your Future.**
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+A personalized career discovery platform using ML-powered insights, adaptive assessments, and mentorship to help students and professionals find their ideal career path.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/sarim78s-projects/v0-new-project-rqjewm9xs2m)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/projects/RQjewm9XS2M)
+![Status](https://img.shields.io/badge/status-in%20development-yellow) ![Stack](https://img.shields.io/badge/stack-React%20%2F%20Node.js-blue) ![ML](https://img.shields.io/badge/ML-Python-teal)
 
-## Overview
+---
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+## ✨ Features
 
-## Deployment
+| Feature | Description |
+|---|---|
+| 🧠 Smart Career Quiz | Adaptive onboarding that learns your strengths and interests |
+| 🎯 Personalized Paths | AI-driven roadmaps with skill gap analysis |
+| 🤝 Mentorship | Connect with professionals for real-world guidance |
+| 📄 Resume Tools | Industry-specific feedback to help you land interviews |
 
-Your project is live at:
+---
 
-**[https://vercel.com/sarim78s-projects/v0-new-project-rqjewm9xs2m](https://vercel.com/sarim78s-projects/v0-new-project-rqjewm9xs2m)**
+## 🛠️ Tech Stack
 
-## Build your app
+| Layer | Tech |
+|---|---|
+| Frontend | React.js / Next.js |
+| Backend | Node.js / Express |
+| Database | MongoDB / PostgreSQL |
+| ML | Python — scikit-learn / TensorFlow |
+| Cloud | AWS / Firebase |
 
-Continue building your app on:
+---
 
-**[https://v0.app/chat/projects/RQjewm9XS2M](https://v0.app/chat/projects/RQjewm9XS2M)**
+## 🚀 How It Works
 
-## How It Works
+1. **Sign up** and complete the career quiz
+2. **ML models** analyze your responses against real career profiles
+3. **Personalized recommendations** are generated with roadmaps and skill gaps
+4. **Explore** paths, resources, and your adaptive dashboard
+5. **Connect** with mentors and refine your resume *(optional)*
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+---
+
+## 🌱 Roadmap
+
+- [ ] Real-time job market integration
+- [ ] Internship & job matching
+- [ ] Gamified progress tracking
+- [ ] Advanced AI career prediction models
+- [ ] Mobile app
+
+---
+
+## 💬 Vision
+
+> CareerCove aims to become the go-to platform for career discovery, empowering students, professionals, and career-changers to make confident, informed decisions about their future.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome. Fork the repo and submit a pull request.
