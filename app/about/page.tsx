@@ -26,7 +26,7 @@ import { Navigation } from "@/components/navigation"
  * AboutPage Component
  *
  * Provides background on CareerCove's mission, vision, and the technology
- * behind our AI-powered career assessments. It also introduces the core
+ * behind our AI-powered career assessments. It is also introduces the core
  * founding team members and their specific expertise.
  */
 const howItWorks = [
