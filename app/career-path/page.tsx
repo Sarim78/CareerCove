@@ -1,6 +1,6 @@
   "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -37,10 +37,6 @@ export default function CareerPathPage() {
     milestones: [] as any[],
   })
   const [newMilestone, setNewMilestone] = useState({ year: 1, title: "", description: "" })
-
-  useEffect(() => {
-    // No need to fetch data as we are reverting to local state management
-  }, [])
 
   const addMilestone = () => {
     if (!newMilestone.title) return
