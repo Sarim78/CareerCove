@@ -35,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${firaCode.variable}`}>
-      <body>
+      <body className="font-sans antialiased">
         {children}
         <Analytics />
       </body>

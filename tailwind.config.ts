@@ -53,6 +53,9 @@ const config: Config = {
         },
         accent: {
           DEFAULT: "#D4C4B0",
+          50: "#FAF8F5",
+          100: "#F5F0EA",
+          200: "#EBE1D5",
           foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
@@ -102,6 +105,10 @@ const config: Config = {
         "slide-in-left": "slide-in-left 0.6s ease-out",
         "slide-in-right": "slide-in-right 0.6s ease-out",
         "scale-in": "scale-in 0.4s ease-out",
+      },
+      fontFamily: {
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "monospace"],
       },
     },
   },
