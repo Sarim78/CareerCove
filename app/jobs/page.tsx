@@ -4,18 +4,26 @@ import { useState, useEffect } from "react"
 import { Navigation } from "@/components/navigation"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Briefcase, Search } from "lucide-react"
-import { Button } from "@/components/ui/button"
 
-/**
- * JobsPage Component
- *
- * A personalized job and internship board. Displays mock job listings that
- * can be filtered by career field, experience level, and job type.
- * Includes local state management for saving/bookmarking interesting opportunities.
- */
-const MOCK_JOBS = [
+// ── Types & data ──────────────────────────────────────────────────────────────
+
+interface Job {
+  id: string
+  title: string
+  company: string
+  location: string
+  job_type: string
+  salary_range: string
+  description: string
+  career_field: string
+  experience_level: string
+  skills_required: string[]
+}
+
+const MOCK_JOBS: Job[] = [
   {
     id: "job_1",
     title: "Senior UX Designer",
@@ -42,102 +50,83 @@ const MOCK_JOBS = [
   },
 ]
 
+/**
+ * JobsPage — a filterable job board with local save/bookmark state.
+ *
+ * Job data is mocked. Filters (field, level, type) and keyword search are
+ * applied client-side with a 500 ms debounce to simulate an API call.
+ */
 export default function JobsPage() {
-  const [jobs, setJobs] = useState<any[]>([])
-  const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set())
-  const [loading, setLoading] = useState(true)
+  const [jobs, setJobs]               = useState<Job[]>([])
+  const [savedJobs, setSavedJobs]     = useState<Set<string>>(new Set())
+  const [loading, setLoading]         = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterField, setFilterField] = useState("all")
   const [filterLevel, setFilterLevel] = useState("all")
-  const [filterType, setFilterType] = useState("all")
+  const [filterType, setFilterType]   = useState("all")
 
+  // Re-filter whenever any filter or search changes
   useEffect(() => {
     setLoading(true)
     const timer = setTimeout(() => {
-      let filtered = [...MOCK_JOBS]
-      if (searchQuery) {
-        filtered = filtered.filter(
-          (j) =>
-            j.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            j.company.toLowerCase().includes(searchQuery.toLowerCase()),
+      const q = searchQuery.toLowerCase()
+      setJobs(
+        MOCK_JOBS.filter((j) =>
+          (!q || j.title.toLowerCase().includes(q) || j.company.toLowerCase().includes(q)) &&
+          (filterField === "all" || j.career_field    === filterField) &&
+          (filterLevel === "all" || j.experience_level === filterLevel) &&
+          (filterType  === "all" || j.job_type         === filterType)
         )
-      }
-      setJobs(filtered)
+      )
       setLoading(false)
     }, 500)
     return () => clearTimeout(timer)
   }, [searchQuery, filterField, filterLevel, filterType])
 
-  const toggleSaveJob = (jobId: string) => {
-    setSavedJobs((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(jobId)) newSet.delete(jobId)
-      else newSet.add(jobId)
-      return newSet
-    })
-  }
+  const toggleSave = (id: string) =>
+    setSavedJobs((prev) => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary-50 via-white to-accent-50">
       <Navigation />
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 max-w-7xl mx-auto w-full">
         <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-900 mb-3 sm:mb-4">
-            Find Your Perfect Job
-          </h1>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-900 mb-3 sm:mb-4">Find Your Perfect Job</h1>
           <p className="text-base sm:text-lg lg:text-xl text-primary-700 max-w-2xl mx-auto px-4">
             Personalized job recommendations based on your skills, interests, and career goals
           </p>
         </div>
 
+        {/* ── Search & filters ── */}
         <div className="mb-6 sm:mb-8 space-y-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400 w-5 h-5" />
-            <Input
-              placeholder="Search jobs, companies, or keywords..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-12 text-sm sm:text-base"
-            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-400 w-5 h-5" />
+            <Input placeholder="Search jobs, companies, or keywords..." value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 h-12 text-sm sm:text-base" />
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <Select value={filterField} onValueChange={setFilterField}>
-              <SelectTrigger className="h-11">
-                <SelectValue placeholder="Career Field" />
-              </SelectTrigger>
+              <SelectTrigger className="h-11"><SelectValue placeholder="Career Field" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Fields</SelectItem>
-                <SelectItem value="technology">Technology</SelectItem>
-                <SelectItem value="business">Business</SelectItem>
-                <SelectItem value="creative">Creative</SelectItem>
-                <SelectItem value="finance">Finance</SelectItem>
-                <SelectItem value="healthcare">Healthcare</SelectItem>
+                {[["all", "All Fields"], ["technology", "Technology"], ["business", "Business"], ["creative", "Creative"], ["finance", "Finance"], ["healthcare", "Healthcare"]].map(([v, l]) => (
+                  <SelectItem key={v} value={v}>{l}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
-
             <Select value={filterLevel} onValueChange={setFilterLevel}>
-              <SelectTrigger className="h-11">
-                <SelectValue placeholder="Experience Level" />
-              </SelectTrigger>
+              <SelectTrigger className="h-11"><SelectValue placeholder="Experience Level" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Levels</SelectItem>
-                <SelectItem value="entry">Entry Level</SelectItem>
-                <SelectItem value="mid">Mid Level</SelectItem>
-                <SelectItem value="senior">Senior Level</SelectItem>
+                {[["all", "All Levels"], ["entry", "Entry Level"], ["mid", "Mid Level"], ["senior", "Senior Level"]].map(([v, l]) => (
+                  <SelectItem key={v} value={v}>{l}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
-
             <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="h-11">
-                <SelectValue placeholder="Job Type" />
-              </SelectTrigger>
+              <SelectTrigger className="h-11"><SelectValue placeholder="Job Type" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="full-time">Full-time</SelectItem>
-                <SelectItem value="part-time">Part-time</SelectItem>
-                <SelectItem value="internship">Internship</SelectItem>
-                <SelectItem value="contract">Contract</SelectItem>
+                {[["all", "All Types"], ["full-time", "Full-time"], ["part-time", "Part-time"], ["internship", "Internship"], ["contract", "Contract"]].map(([v, l]) => (
+                  <SelectItem key={v} value={v}>{l}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -147,9 +136,10 @@ export default function JobsPage() {
           Showing {jobs.length} {jobs.length === 1 ? "job" : "jobs"}
         </p>
 
+        {/* ── Results ── */}
         {loading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500" />
             <p className="mt-4 text-primary-600">Loading jobs...</p>
           </div>
         ) : jobs.length === 0 ? (
@@ -165,20 +155,16 @@ export default function JobsPage() {
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h3 className="font-bold text-lg">{job.title}</h3>
-                    <p className="text-primary-600">
-                      {job.company} • {job.location}
-                    </p>
+                    <p className="text-primary-600">{job.company} • {job.location}</p>
                   </div>
-                  <Button variant="ghost" onClick={() => toggleSaveJob(job.id)}>
+                  <Button variant="ghost" onClick={() => toggleSave(job.id)}>
                     {savedJobs.has(job.id) ? "Saved" : "Save"}
                   </Button>
                 </div>
                 <p className="text-sm text-gray-600 mb-3">{job.description}</p>
-                <div className="flex gap-2">
-                  {job.skills_required.map((s: string) => (
-                    <span key={s} className="px-2 py-1 bg-primary-50 text-xs rounded-full">
-                      {s}
-                    </span>
+                <div className="flex flex-wrap gap-2">
+                  {job.skills_required.map((s) => (
+                    <span key={s} className="px-2 py-1 bg-primary-50 text-xs rounded-full">{s}</span>
                   ))}
                 </div>
               </div>

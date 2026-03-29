@@ -1,138 +1,117 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import Link from "next/link"
 import { Navigation } from "@/components/navigation"
-import { useRouter } from "next/navigation"
 
-/**
- * ProfilePage Component
- *
- * User dashboard HUB. Refactored to fetch user profile dynamically
- * and display interactive summaries from mock data layers.
- */
+// ── Mock data ─────────────────────────────────────────────────────────────────
 
-const mockUser = {
-  full_name: "Demo User",
-  email: "demo.user@example.com",
+const MOCK_USER = {
+  full_name:  "Demo User",
+  email:      "demo.user@example.com",
   created_at: new Date().toISOString(),
 }
 
-const mockQuizResults = {
+const MOCK_QUIZ_RESULT = {
   personality_type: "Innovative Architect",
-  completed_at: new Date().toISOString(),
+  completed_at:     new Date().toISOString(),
 }
 
-const mockSavedJobs = [
+const MOCK_SAVED_JOBS = [
   { id: "1", career_title: "Senior UX Designer", saved_at: new Date().toISOString() },
-  { id: "2", career_title: "Frontend Engineer", saved_at: new Date().toISOString() },
+  { id: "2", career_title: "Frontend Engineer",   saved_at: new Date().toISOString() },
 ]
 
+/**
+ * ProfilePage — user dashboard showing account info, quiz results, and saved careers.
+ *
+ * Data is mocked with a 500 ms simulated load. Sign out redirects to the homepage.
+ */
 export default function ProfilePage() {
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser]     = useState<typeof MOCK_USER | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setUser(mockUser)
-      setLoading(false)
-    }, 500)
+    const timer = setTimeout(() => { setUser(MOCK_USER); setLoading(false) }, 500)
     return () => clearTimeout(timer)
   }, [])
-
-  const handleSignOut = () => {
-    router.push("/")
-  }
 
   if (loading) {
     return (
       <div className="min-h-screen bg-primary-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500" />
       </div>
     )
   }
 
-  if (!user) {
-    return null
-  }
+  if (!user) return null
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-primary-50 to-primary-100">
       <Navigation />
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto space-y-8">
+
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold gradient-text">My Profile</h1>
               <p className="text-primary-600 mt-2">Welcome back, {user.full_name}</p>
             </div>
-            <Button
-              onClick={handleSignOut}
-              variant="outline"
-              className="border-primary-300 text-primary-700 hover:bg-primary-50 bg-transparent"
-            >
+            <Button onClick={() => router.push("/")} variant="outline" className="border-primary-300 text-primary-700 hover:bg-primary-50 bg-transparent">
               Sign Out
             </Button>
           </div>
 
-          {/* Profile Info */}
+          {/* Account info */}
           <Card className="border-primary-200/50 shadow-lg">
             <CardHeader>
               <CardTitle>Account Information</CardTitle>
               <CardDescription>Your personal details</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <p className="text-sm text-primary-600">Full Name</p>
-                <p className="text-lg font-medium text-primary-900">{user.full_name}</p>
-              </div>
-              <div>
-                <p className="text-sm text-primary-600">Email</p>
-                <p className="text-lg font-medium text-primary-900">{user.email}</p>
-              </div>
-              <div>
-                <p className="text-sm text-primary-600">Member Since</p>
-                <p className="text-lg font-medium text-primary-900">{new Date(user.created_at).toLocaleDateString()}</p>
-              </div>
+              {[
+                { label: "Full Name",     value: user.full_name },
+                { label: "Email",         value: user.email },
+                { label: "Member Since",  value: new Date(user.created_at).toLocaleDateString() },
+              ].map(({ label, value }) => (
+                <div key={label}>
+                  <p className="text-sm text-primary-600">{label}</p>
+                  <p className="text-lg font-medium text-primary-900">{value}</p>
+                </div>
+              ))}
             </CardContent>
           </Card>
 
-          {/* Quiz Results */}
+          {/* Quiz results */}
           <Card className="border-primary-200/50 shadow-lg">
             <CardHeader>
               <CardTitle>Career Assessment</CardTitle>
               <CardDescription>Your latest quiz results</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-primary-600">Personality Type</p>
-                  <Badge className="mt-1 bg-primary-500">{mockQuizResults.personality_type}</Badge>
-                </div>
-                <div>
-                  <p className="text-sm text-primary-600">Completed</p>
-                  <p className="text-lg text-primary-900">
-                    {new Date(mockQuizResults.completed_at).toLocaleDateString()}
-                  </p>
-                </div>
-                <Link href="/quiz">
-                  <Button
-                    variant="outline"
-                    className="border-primary-300 text-primary-700 hover:bg-primary-50 bg-transparent"
-                  >
-                    Retake Quiz
-                  </Button>
-                </Link>
+            <CardContent className="space-y-4">
+              <div>
+                <p className="text-sm text-primary-600">Personality Type</p>
+                <Badge className="mt-1 bg-primary-500">{MOCK_QUIZ_RESULT.personality_type}</Badge>
               </div>
+              <div>
+                <p className="text-sm text-primary-600">Completed</p>
+                <p className="text-lg text-primary-900">{new Date(MOCK_QUIZ_RESULT.completed_at).toLocaleDateString()}</p>
+              </div>
+              <Link href="/quiz">
+                <Button variant="outline" className="border-primary-300 text-primary-700 hover:bg-primary-50 bg-transparent">
+                  Retake Quiz
+                </Button>
+              </Link>
             </CardContent>
           </Card>
 
-          {/* Saved Careers */}
+          {/* Saved careers */}
           <Card className="border-primary-200/50 shadow-lg">
             <CardHeader>
               <CardTitle>Saved Careers</CardTitle>
@@ -140,19 +119,14 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockSavedJobs.map((career) => (
-                  <div
-                    key={career.id}
-                    className="flex items-center justify-between p-3 border border-primary-200 rounded-lg bg-white"
-                  >
+                {MOCK_SAVED_JOBS.map((career) => (
+                  <div key={career.id} className="flex items-center justify-between p-3 border border-primary-200 rounded-lg bg-white">
                     <div>
                       <p className="font-medium text-primary-900">{career.career_title}</p>
                       <p className="text-sm text-primary-600">Saved {new Date(career.saved_at).toLocaleDateString()}</p>
                     </div>
                     <Link href="/jobs">
-                      <Button variant="ghost" size="sm" className="text-primary-700 hover:text-primary-900">
-                        View
-                      </Button>
+                      <Button variant="ghost" size="sm" className="text-primary-700 hover:text-primary-900">View</Button>
                     </Link>
                   </div>
                 ))}
@@ -160,16 +134,17 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          {/* Mentor Bookings */}
+          {/* Mentor sessions placeholder */}
           <Card className="border-primary-200/50 shadow-lg">
             <CardHeader>
               <CardTitle>Mentor Sessions</CardTitle>
               <CardDescription>Your upcoming and past sessions</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">{/* Placeholder for mentor bookings data */}</div>
+              <p className="text-sm text-primary-500 text-center py-4">No sessions booked yet</p>
             </CardContent>
           </Card>
+
         </div>
       </div>
     </div>

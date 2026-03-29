@@ -1,39 +1,36 @@
 "use client"
 
+import { useState } from "react"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Target, Menu, X } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useState } from "react"
+
+/** All top-level nav links rendered in both desktop and mobile menus. */
+const NAV_LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/jobs", label: "Jobs" },
+  { href: "/skills", label: "Skills" },
+  { href: "/career-path", label: "Career Path" },
+  { href: "/messages", label: "Messages" },
+  { href: "/about", label: "About" },
+]
 
 /**
- * Navigation Component
- *
- * The primary site header and navigation system. Features a responsive
- * desktop and mobile menu, with active state tracking to help users
- * navigate between the Home, Jobs, Skills, and Dashboard pages.
+ * Navigation — sticky site header with responsive desktop/mobile menu.
+ * Active link detection highlights the current route with an underline indicator.
  */
 export function Navigation() {
   const pathname = usePathname()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
-  const isActive = (path: string) => {
-    if (path === "/" && pathname === "/") return true
-    if (path !== "/" && pathname.startsWith(path)) return true
-    return false
-  }
-
-  const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/jobs", label: "Jobs" },
-    { href: "/skills", label: "Skills" },
-    { href: "/career-path", label: "Career Path" },
-    { href: "/messages", label: "Messages" },
-    { href: "/about", label: "About" },
-  ]
+  /** Returns true if `path` matches the current route. */
+  const isActive = (path: string) =>
+    path === "/" ? pathname === "/" : pathname.startsWith(path)
 
   return (
     <header className="px-3 sm:px-4 md:px-6 lg:px-8 h-14 sm:h-16 md:h-20 flex items-center border-b border-primary-200/50 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50 transition-all duration-300">
+      {/* Logo */}
       <Link className="flex items-center justify-center group flex-shrink-0" href="/">
         <div className="p-2 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 group-hover:from-primary-600 group-hover:to-primary-700 transition-all duration-300 group-hover:scale-110">
           <Target className="h-4 sm:h-5 md:h-6 w-4 sm:w-5 md:w-6 text-white" />
@@ -43,87 +40,62 @@ export function Navigation() {
         </span>
       </Link>
 
-      {/* Desktop Navigation */}
+      {/* Desktop nav */}
       <nav className="ml-auto hidden lg:flex items-center gap-4 xl:gap-6">
-        {navLinks.map((link) => (
+        {NAV_LINKS.map((link) => (
           <Link
             key={link.href}
+            href={link.href}
             className={`text-xs xl:text-sm font-medium transition-all duration-300 relative group whitespace-nowrap ${
               isActive(link.href) ? "text-primary-900" : "text-primary-700 hover:text-primary-900"
             }`}
-            href={link.href}
           >
             {link.label}
             <span
               className={`absolute -bottom-1 left-0 h-0.5 bg-primary-500 transition-all duration-300 ${
                 isActive(link.href) ? "w-full" : "w-0 group-hover:w-full"
               }`}
-            ></span>
+            />
           </Link>
         ))}
         <div className="flex items-center gap-3">
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent"
-          >
+          <Button asChild variant="outline" size="sm" className="border-primary-300 text-primary-700 hover:bg-primary-50 transition-all duration-300 hover:scale-105 bg-transparent">
             <Link href="/auth">Sign In</Link>
           </Button>
-          <Button
-            asChild
-            size="sm"
-            className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-          >
+          <Button asChild size="sm" className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             <Link href="/quiz">Start Quiz</Link>
           </Button>
         </div>
       </nav>
 
-      {/* Mobile Menu Button */}
-      <div className="ml-auto lg:hidden flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="text-primary-700 hover:bg-primary-50"
-        >
-          {mobileMenuOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
+      {/* Mobile hamburger */}
+      <div className="ml-auto lg:hidden">
+        <Button variant="ghost" size="sm" onClick={() => setMobileOpen(!mobileOpen)} className="text-primary-700 hover:bg-primary-50">
+          {mobileOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
         </Button>
       </div>
 
-      {/* Mobile Menu Dropdown */}
-      {mobileMenuOpen && (
+      {/* Mobile dropdown */}
+      {mobileOpen && (
         <div className="absolute top-14 sm:top-16 md:top-20 left-0 right-0 bg-white border-b border-primary-200/50 shadow-lg lg:hidden max-h-[calc(100vh-3.5rem)] overflow-y-auto">
           <nav className="flex flex-col p-3 sm:p-4 gap-2">
-            {navLinks.map((link) => (
+            {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setMobileOpen(false)}
                 className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 ${
-                  isActive(link.href)
-                    ? "bg-primary-100 text-primary-900"
-                    : "text-primary-700 hover:bg-primary-50 hover:text-primary-900"
+                  isActive(link.href) ? "bg-primary-100 text-primary-900" : "text-primary-700 hover:bg-primary-50 hover:text-primary-900"
                 }`}
               >
                 {link.label}
               </Link>
             ))}
             <hr className="my-2 border-primary-200" />
-            <Button
-              asChild
-              variant="outline"
-              className="border-primary-300 text-primary-700 hover:bg-primary-50 w-full transition-all duration-300 bg-transparent text-xs sm:text-sm"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Button asChild variant="outline" className="border-primary-300 text-primary-700 hover:bg-primary-50 w-full bg-transparent text-xs sm:text-sm" onClick={() => setMobileOpen(false)}>
               <Link href="/auth">Sign In</Link>
             </Button>
-            <Button
-              asChild
-              className="bg-primary-500 hover:bg-primary-600 text-white w-full shadow-lg hover:shadow-xl transition-all duration-300 text-xs sm:text-sm mt-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Button asChild className="bg-primary-500 hover:bg-primary-600 text-white w-full shadow-lg mt-2 text-xs sm:text-sm" onClick={() => setMobileOpen(false)}>
               <Link href="/quiz">Start Quiz</Link>
             </Button>
           </nav>
