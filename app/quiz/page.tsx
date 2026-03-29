@@ -16,8 +16,6 @@ import { Progress } from "@/components/ui/progress"
 import { ArrowLeft, ArrowRight, Sparkles, Award, TrendingUp, X } from "lucide-react"
 import Link from "next/link"
 import { Navigation } from "@/components/navigation"
-// import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
 
 const filterCategories = [
   { id: "technology", icon: <TrendingUp className="w-4 h-4" />, label: "Technology" },
@@ -291,8 +289,6 @@ const QuizPage = () => {
   const [isAnimating, setIsAnimating] = useState(false)
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
   const [showFilters, setShowFilters] = useState(false)
-  const [isSavingQuiz, setIsSavingQuiz] = useState(false)
-  const router = useRouter()
 
   const handleAnswer = useCallback(
     (value: string) => {
