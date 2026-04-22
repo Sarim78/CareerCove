@@ -8,9 +8,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swa
 const firaCode = Fira_Code({ subsets: ["latin"], variable: "--font-mono", display: "swap" })
 
 export const metadata: Metadata = {
-  title: "CareerCove - Find Your Dream Career Path",
+  title: "CareerCove",
   description: "Discover your ideal career pathway with personalized guidance, industry insights, and skill-building resources.",
-  generator: "v0.app",
   icons: {
     icon: [{ url: "/icon.png" }, { url: "/favicon.png", type: "image/png" }],
     apple: "/apple-icon.png",
