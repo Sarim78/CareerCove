@@ -10,11 +10,6 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-components-000000?style=for-the-badge)](https://ui.shadcn.com/)
 
-<br />
-
-> **CareerCove** is a frontend-only career discovery platform designed to help students and professionals find their ideal career path through smart assessments, personalized roadmaps, and mentorship connection. All crafted as a polished, production-grade UI.
-
-<br />
 </div>
 
 ---
