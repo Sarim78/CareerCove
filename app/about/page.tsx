@@ -18,14 +18,6 @@ const HOW_IT_WORKS = [
   { step: "4", title: "Personalised Recommendations", icon: BarChart3, description: "Receive tailored career paths, skill development plans, and mentor connections based on your unique profile.", details: ["Custom career roadmaps", "Skill gap analysis", "Mentor matching", "Learning recommendations"] },
 ]
 
-const TEAM_MEMBERS = [
-  { name: "Sarim Siddiqui",  role: "Co-Founder & CEO",      image: "/professional-businessman.png",   bio: "AI researcher with expertise in machine learning and career development. Leading the technical vision at CareerCove.",            expertise: ["AI/ML", "Data Science", "Machine Learning", "Career Development"] },
-  { name: "Ryan Siddiqui",   role: "Co-Founder & CTO",      image: "/tech-professional.png",          bio: "Full-stack engineer specializing in scalable systems and user experience. Building the platform infrastructure.",                expertise: ["Full-Stack Development", "System Architecture", "UX Design", "Cloud Infrastructure"] },
-  { name: "Wasi Siddiqui",   role: "Head of Product",       image: "/product-manager-brainstorm.png", bio: "Product strategist focused on creating impactful user experiences. Driving product innovation and growth.",                      expertise: ["Product Strategy", "User Research", "Growth", "Analytics"] },
-  { name: "Emily Chen",      role: "Lead Data Scientist",   image: "/data-scientist-workspace.png",   bio: "PhD in Psychology with expertise in career development theory and predictive analytics.",                                       expertise: ["Psychology", "Statistics", "Predictive Modeling", "Research"] },
-  { name: "Marcus Johnson",  role: "Senior Engineer",       image: "/software-engineer-workspace.png",bio: "Backend specialist with experience in building high-performance AI systems and data pipelines.",                                expertise: ["Backend Development", "AI Systems", "Database Design", "API Development"] },
-]
-
 const STATS = [
   { value: "50K+", label: "Career Assessments", sub: "Completed successfully" },
   { value: "95%",  label: "Accuracy Rate",       sub: "In career predictions"  },
@@ -187,47 +179,6 @@ export default function AboutPage() {
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </section>
-
-        {/* ── Team ── */}
-        <section id="team" className="w-full py-20 bg-white">
-          <div className="container px-6 md:px-8">
-            <div className="text-center mb-16 animate-on-scroll">
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-6">
-                <Users className="w-4 h-4 mr-2" /> Our Team
-              </div>
-              <h2 className="text-3xl font-bold tracking-tight sm:text-5xl gradient-text mb-6">Meet the Innovators</h2>
-              <p className="text-xl text-primary-600 max-w-3xl mx-auto leading-relaxed">
-                Our diverse team combines decades of experience in technology, psychology, and career development.
-              </p>
-            </div>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              {TEAM_MEMBERS.map((member) => (
-                <Card key={member.name} className="hover-lift bg-white border-primary-200/50 shadow-lg hover:shadow-2xl transition-all duration-300 animate-on-scroll group">
-                  <CardHeader className="text-center pb-4">
-                    <div className="relative mx-auto mb-4">
-                      <Image src={member.image || "/placeholder.svg"} alt={member.name} width={120} height={120}
-                        className="rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300" />
-                      <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-400 rounded-full border-2 border-white" />
-                    </div>
-                    <CardTitle className="text-lg text-primary-800">{member.name}</CardTitle>
-                    <CardDescription className="text-primary-600 font-medium">{member.role}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-primary-600 leading-relaxed">{member.bio}</p>
-                    <div>
-                      <p className="text-xs font-medium text-primary-700 mb-2">Expertise:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {member.expertise.map((skill) => (
-                          <Badge key={skill} variant="secondary" className="text-xs bg-primary-100 text-primary-700">{skill}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
           </div>
         </section>
 
