@@ -1,9 +1,7 @@
 <div align="center">
-
 <br />
 
 # CareerCove
-
 ### *Discover Your Path. Build Your Future.*
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-careercove.vercel.app-0070f3?style=for-the-badge&logo=vercel&logoColor=white)](https://careercove.vercel.app)
@@ -17,14 +15,15 @@
 > **CareerCove** is a frontend-only career discovery platform designed to help students and professionals find their ideal career path through smart assessments, personalized roadmaps, and mentorship connection. All crafted as a polished, production-grade UI.
 
 <br />
-
 </div>
 
 ---
 
 ## ⚠️ Frontend Only
+> This repository contains the **frontend interface only**. There is no active backend, database, or ML pipeline connected. All features represent the intended product vision and UI/UX; backend integration is planned for a future phase.
 
-> This repository contains the **frontend interface only**. There is no active backend, database, or ML pipeline connected. All features represent the intended product vision and UI/UX — backend integration is planned for a future phase.
+## 🧪 Disclaimer
+> **All data displayed across the platform, including mentor profiles, user testimonials, job listings, resume feedback, career stats, and progress metrics, is entirely placeholder/dummy data for UI demonstration purposes only.** None of it represents real users, real services, or real results. CareerCove is a UI prototype showcasing the intended product experience.
 
 ---
 
@@ -60,9 +59,7 @@ Vercel Analytics          — Usage insights
 ## 🚀 Getting Started
 
 ### Prerequisites
-
-- Node.js `18+`
-- `pnpm` (recommended) or `npm`
+Node.js `18+` and `pnpm` (recommended) or `npm`
 
 ### Installation
 
@@ -117,7 +114,6 @@ careercove/
 ---
 
 ## 💬 Vision
-
 > CareerCove aims to become the go-to platform for career discovery, empowering students, professionals, and career-changers to make confident, informed decisions about their future through data-driven guidance and real human mentorship.
 
 ---
